@@ -8,9 +8,9 @@ import { euros, fmtMatricula, hora, normMatricula } from '../utils.js';
 // Simulador de la barrera conectado al backend:
 // cada «Entrar» / «Salir» se comprueba contra tus reservas y se guarda en la tabla accesos.
 const HUD = {
-  idle: ['En espera', 'En espera'], read: ['Leyendo…', 'Llegint…'], ok: ['Reserva activa', 'Reserva activa'],
-  no: ['Sin reserva', 'Sense reserva'], soon: ['Aún no', 'Encara no'], in: ['Ya está dentro', 'Ja és a dins'],
-  bye: ['¡Buen viaje!', 'Bon viatge!'], noin: ['Sin entrada', 'Sense entrada'], err: ['Error', 'Error'],
+  idle: ['En espera', 'En espera', 'Waiting'], read: ['Leyendo…', 'Llegint…', 'Reading…'], ok: ['Reserva activa', 'Reserva activa', 'Booking found'],
+  no: ['Sin reserva', 'Sense reserva', 'No booking'], soon: ['Aún no', 'Encara no', 'Not yet'], in: ['Ya está dentro', 'Ja és a dins', 'Already inside'],
+  bye: ['¡Buen viaje!', 'Bon viatge!', 'Safe travels!'], noin: ['Sin entrada', 'Sense entrada', 'No entry'], err: ['Error', 'Error', 'Error'],
 };
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -20,7 +20,7 @@ export default function Barrera({ matricula, version }) {
   const [plate, setPlate] = useState('');
   const [hud, setHud] = useState('idle');
   const [hudPlate, setHudPlate] = useState('— — —');
-  const [log, setLog] = useState(null); // [es, ca]
+  const [log, setLog] = useState(null); // [es, ca, en]
   const [busy, setBusy] = useState(false);
   const [sugerencias, setSugerencias] = useState([]);
   const [scan, setScan] = useState(false);
@@ -57,7 +57,7 @@ export default function Barrera({ matricula, version }) {
 
   const ciclo = async (tipo) => {
     const n = normMatricula(plate);
-    if (!n) return setLog(['Escribe una matrícula.', 'Escriu una matrícula.']);
+    if (!n) return setLog(['Escribe una matrícula.', 'Escriu una matrícula.', 'Enter a plate.']);
     if (busy) return;
     setBusy(true);
     const pl = fmtMatricula(n);
@@ -78,22 +78,22 @@ export default function Barrera({ matricula, version }) {
     const { r, e } = await consulta;
 
     let abrir = false;
-    if (e) { setHud('err'); setLog([e.message, e.message]); }
+    if (e) { setHud('err'); setLog([e.message]); }
     else if (tipo === 'entrada') {
-      if (r.permitido) { abrir = true; setHud('ok'); setLog([`${pl}: reserva ${r.reserva.codigo} encontrada. Barrera abierta.`, `${pl}: reserva ${r.reserva.codigo} trobada. Barrera oberta.`]); }
-      else if (r.motivo === 'dentro') { setHud('in'); setLog([`${pl} ya está dentro del parking.`, `${pl} ja és dins del pàrquing.`]); }
+      if (r.permitido) { abrir = true; setHud('ok'); setLog([`${pl}: reserva ${r.reserva.codigo} encontrada. Barrera abierta.`, `${pl}: reserva ${r.reserva.codigo} trobada. Barrera oberta.`, `${pl}: booking ${r.reserva.codigo} found. Barrier open.`]); }
+      else if (r.motivo === 'dentro') { setHud('in'); setLog([`${pl} ya está dentro del parking.`, `${pl} ja és dins del pàrquing.`, `${pl} is already inside the car park.`]); }
       else if (r.motivo === 'pronto') {
         const h = hora(r.reserva.inicio, locale);
         setHud('soon');
-        setLog([`${pl}: tu reserva ${r.reserva.codigo} empieza a las ${h}. Puedes entrar desde 15 min antes.`, `${pl}: la teva reserva ${r.reserva.codigo} comença a les ${h}. Pots entrar des de 15 min abans.`]);
-      } else { setHud('no'); setLog([`${pl} no tiene ninguna reserva activa ahora. La barrera no se abre.`, `${pl} no té cap reserva activa ara. La barrera no s'obre.`]); }
+        setLog([`${pl}: tu reserva ${r.reserva.codigo} empieza a las ${h}. Puedes entrar desde 15 min antes.`, `${pl}: la teva reserva ${r.reserva.codigo} comença a les ${h}. Pots entrar des de 15 min abans.`, `${pl}: your booking ${r.reserva.codigo} starts at ${h}. You can enter from 15 min before.`]);
+      } else { setHud('no'); setLog([`${pl} no tiene ninguna reserva activa ahora. La barrera no se abre.`, `${pl} no té cap reserva activa ara. La barrera no s'obre.`, `${pl} has no active booking right now. The barrier stays closed.`]); }
     } else if (r.permitido) {
       abrir = true; setHud('bye');
       if (r.minutos_exceso > 0) {
         const imp = euros(r.importe_extra, locale);
-        setLog([`${pl}: salida con ${r.minutos_exceso} min de más. Se cobran ${imp} extra.`, `${pl}: sortida amb ${r.minutos_exceso} min de més. Es cobren ${imp} extra.`]);
-      } else setLog([`${pl}: salida a tiempo. Sin cargos extra.`, `${pl}: sortida a temps. Sense càrrecs extra.`]);
-    } else { setHud('noin'); setLog([`${pl} no consta dentro del parking. Pulsa primero «Entrar».`, `${pl} no consta dins del pàrquing. Prem primer «Entrar».`]); }
+        setLog([`${pl}: salida con ${r.minutos_exceso} min de más. Se cobran ${imp} extra.`, `${pl}: sortida amb ${r.minutos_exceso} min de més. Es cobren ${imp} extra.`, `${pl}: left ${r.minutos_exceso} min late. ${imp} extra is charged.`]);
+      } else setLog([`${pl}: salida a tiempo. Sin cargos extra.`, `${pl}: sortida a temps. Sense càrrecs extra.`, `${pl}: left on time. No extra charge.`]);
+    } else { setHud('noin'); setLog([`${pl} no consta dentro del parking. Pulsa primero «Entrar».`, `${pl} no consta dins del pàrquing. Prem primer «Entrar».`, `${pl} is not inside the car park. Press «Enter» first.`]); }
 
     if (abrir) {
       setAbierta(true);
@@ -142,10 +142,10 @@ export default function Barrera({ matricula, version }) {
             </div>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-sm font-semibold text-muted">{T('Prueba con:', 'Prova amb:')}</span>
+            <span className="text-sm font-semibold text-muted">{T('Prueba con:', 'Prova amb:', 'Try with:')}</span>
             {[...sugerencias.map((m) => [m, true]), ['9999 ZZZ', false]].map(([m, ok]) => (
               <button key={m} type="button" className="chip font-mono text-sm" onClick={() => setPlate(m)}>
-                {m}<span className={`ml-2 font-sans text-xs font-bold ${ok ? 'text-ok' : 'text-danger'}`}>{ok ? T('tu reserva', 'la teva reserva') : T('sin reserva', 'sense reserva')}</span>
+                {m}<span className={`ml-2 font-sans text-xs font-bold ${ok ? 'text-ok' : 'text-danger'}`}>{ok ? T('tu reserva', 'la teva reserva', 'your booking') : T('sin reserva', 'sense reserva', 'no booking')}</span>
               </button>
             ))}
           </div>
@@ -155,7 +155,7 @@ export default function Barrera({ matricula, version }) {
         </>
       ) : (
         <div className="log mt-4 flex flex-wrap items-center justify-between gap-3 p-4">
-          <p className="text-sm font-semibold text-ink">{T('Entra en tu cuenta para probar la barrera con tus reservas.', 'Entra al teu compte per provar la barrera amb les teves reserves.')}</p>
+          <p className="text-sm font-semibold text-ink">{T('Entra en tu cuenta para probar la barrera con tus reservas.', 'Entra al teu compte per provar la barrera amb les teves reserves.', 'Sign in to try the barrier with your bookings.')}</p>
           <Link to="/login" state={{ desde: '/#barrera' }} className="btn btn-primary">{t('n.login')}</Link>
         </div>
       )}

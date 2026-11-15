@@ -6,8 +6,8 @@ import { TIPOS, euros, fecha, planta } from '../utils.js';
 
 const PLAZA_VACIA = { codigo: '', planta: 0, tipo: 'normal', precio_hora: 2, parking_id: '' };
 const MOTIVOS = {
-  ok: ['Correcto', 'Correcte'], exceso: ['Con retraso', 'Amb retard'], sin_reserva: ['Sin reserva', 'Sense reserva'],
-  pronto: ['Antes de hora', "Abans d'hora"], dentro: ['Ya dentro', 'Ja a dins'], no_dentro: ['No estaba dentro', 'No hi era'],
+  ok: ['Correcto', 'Correcte', 'OK'], exceso: ['Con retraso', 'Amb retard', 'Late'], sin_reserva: ['Sin reserva', 'Sense reserva', 'No booking'],
+  pronto: ['Antes de hora', "Abans d'hora", 'Too early'], dentro: ['Ya dentro', 'Ja a dins', 'Already inside'], no_dentro: ['No estaba dentro', 'No hi era', 'Not inside'],
 };
 
 export default function Admin() {
@@ -53,14 +53,14 @@ export default function Admin() {
     accion(async () => {
       await api.admin.crearPlaza(nueva);
       setNueva((n) => ({ ...PLAZA_VACIA, parking_id: n.parking_id }));
-    }, T('Plaza añadida', 'Plaça afegida'));
+    }, T('Plaza añadida', 'Plaça afegida', 'Space added'));
   };
 
   const guardarPrecio = (e) => {
     e.preventDefault();
     const { id, valor } = editando;
     setEditando(null);
-    accion(() => api.admin.editarPlaza(id, { precio_hora: String(valor).replace(',', '.') }), T('Precio actualizado', 'Preu actualitzat'));
+    accion(() => api.admin.editarPlaza(id, { precio_hora: String(valor).replace(',', '.') }), T('Precio actualizado', 'Preu actualitzat', 'Price updated'));
   };
 
   const q = filtro.toLowerCase();
@@ -68,18 +68,18 @@ export default function Admin() {
     !q || [r.codigo, r.matricula, r.plaza?.codigo, r.plaza?.parking?.nombre, r.usuario?.nombre].join(' ').toLowerCase().includes(q));
 
   const kpis = resumen && [
-    [T('Plazas activas', 'Places actives'), resumen.plazas_activas],
-    [T('Ocupadas ahora', 'Ocupades ara'), resumen.ocupadas_ahora],
-    [T('Reservas pendientes', 'Reserves pendents'), resumen.reservas_pendientes],
-    [T('Ingresos', 'Ingressos'), eur(resumen.ingresos_totales)],
+    [T('Plazas activas', 'Places actives', 'Active spaces'), resumen.plazas_activas],
+    [T('Ocupadas ahora', 'Ocupades ara', 'Occupied now'), resumen.ocupadas_ahora],
+    [T('Reservas pendientes', 'Reserves pendents', 'Upcoming bookings'), resumen.reservas_pendientes],
+    [T('Ingresos', 'Ingressos', 'Revenue'), eur(resumen.ingresos_totales)],
   ];
 
   return (
     <section className="band">
       <div className="wrap">
-        <Cabecera eyebrow={T('Panel interno', 'Panell intern')} titulo={T('Administración', 'Administració')} />
+        <Cabecera eyebrow={T('Panel interno', 'Panell intern', 'Back office')} titulo={T('Administración', 'Administració', 'Admin')} />
         {error && <p className="note note-danger mt-6" role="alert">{error}</p>}
-        {!reservas && !error && <Cargando texto={T('Cargando…', 'Carregant…')} />}
+        {!reservas && !error && <Cargando texto={T('Cargando…', 'Carregant…', 'Loading…')} />}
 
         {kpis && (
           <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -92,18 +92,18 @@ export default function Admin() {
         {reservas && (
           <>
             <div className="tabs mt-8" role="tablist">
-              {[['reservas', T('Reservas', 'Reserves')], ['accesos', T('Barrera', 'Barrera')], ['plazas', T('Plazas', 'Places')]].map(([k, txt]) => (
+              {[['reservas', T('Reservas', 'Reserves', 'Bookings')], ['accesos', T('Barrera', 'Barrera', 'Barrier')], ['plazas', T('Plazas', 'Places', 'Spaces')]].map(([k, txt]) => (
                 <button key={k} type="button" role="tab" aria-selected={pestana === k} onClick={() => setPestana(k)}>{txt}</button>
               ))}
             </div>
 
             {pestana === 'reservas' && (
               <div className="card mt-4 p-4">
-                <input className="field max-w-md" placeholder={T('Buscar por código, matrícula, parking o cliente…', 'Cerca per codi, matrícula, pàrquing o client…')}
-                  aria-label={T('Buscar', 'Cercar')} value={filtro} onChange={(e) => setFiltro(e.target.value)} />
+                <input className="field max-w-md" placeholder={T('Buscar por código, matrícula, parking o cliente…', 'Cerca per codi, matrícula, pàrquing o client…', 'Search by code, plate, car park or customer…')}
+                  aria-label={T('Buscar', 'Cercar', 'Search')} value={filtro} onChange={(e) => setFiltro(e.target.value)} />
                 <div className="mt-4 overflow-x-auto">
                   <table className="data tnum min-w-[860px]">
-                    <thead><tr><th>{T('Código', 'Codi')}</th><th>Parking</th><th>{T('Cliente', 'Client')}</th><th>{T('Matrícula', 'Matrícula')}</th><th>{T('Entrada', 'Entrada')}</th><th>{T('Salida', 'Sortida')}</th><th>Total</th><th>{T('Estado', 'Estat')}</th></tr></thead>
+                    <thead><tr><th>{T('Código', 'Codi', 'Code')}</th><th>Parking</th><th>{T('Cliente', 'Client', 'Customer')}</th><th>{T('Matrícula', 'Matrícula', 'Plate')}</th><th>{T('Entrada', 'Entrada', 'Entry')}</th><th>{T('Salida', 'Sortida', 'Exit')}</th><th>Total</th><th>{T('Estado', 'Estat', 'Status')}</th></tr></thead>
                     <tbody>
                       {reservasFiltradas.map((r) => (
                         <tr key={r.id}>
@@ -115,16 +115,16 @@ export default function Admin() {
                           <td>{fecha(r.fin, locale)}</td>
                           <td className="font-mono font-bold text-ink">{eur(r.precio_total)}</td>
                           <td>
-                            <select className="field !min-h-[40px] !w-auto" aria-label={T('Estado', 'Estat')} value={r.estado}
-                              onChange={(e) => accion(() => api.admin.cambiarEstado(r.id, e.target.value), T('Estado cambiado', 'Estat canviat'))}>
-                              <option value="confirmada">{T('Confirmada', 'Confirmada')}</option>
-                              <option value="completada">{T('Completada', 'Completada')}</option>
-                              <option value="cancelada">{T('Cancelada', 'Cancel·lada')}</option>
+                            <select className="field !min-h-[40px] !w-auto" aria-label={T('Estado', 'Estat', 'Status')} value={r.estado}
+                              onChange={(e) => accion(() => api.admin.cambiarEstado(r.id, e.target.value), T('Estado cambiado', 'Estat canviat', 'Status changed'))}>
+                              <option value="confirmada">{T('Confirmada', 'Confirmada', 'Confirmed')}</option>
+                              <option value="completada">{T('Completada', 'Completada', 'Completed')}</option>
+                              <option value="cancelada">{T('Cancelada', 'Cancel·lada', 'Cancelled')}</option>
                             </select>
                           </td>
                         </tr>
                       ))}
-                      {reservasFiltradas.length === 0 && <tr><td colSpan={8} className="text-muted">{T('No hay reservas.', 'No hi ha reserves.')}</td></tr>}
+                      {reservasFiltradas.length === 0 && <tr><td colSpan={8} className="text-muted">{T('No hay reservas.', 'No hi ha reserves.', 'No bookings.')}</td></tr>}
                     </tbody>
                   </table>
                 </div>
@@ -134,20 +134,20 @@ export default function Admin() {
             {pestana === 'accesos' && (
               <div className="card mt-4 overflow-x-auto p-4">
                 <table className="data tnum min-w-[760px]">
-                  <thead><tr><th>{T('Fecha', 'Data')}</th><th>{T('Matrícula', 'Matrícula')}</th><th>{T('Tipo', 'Tipus')}</th><th>{T('Resultado', 'Resultat')}</th><th>{T('Reserva', 'Reserva')}</th><th>{T('Cliente', 'Client')}</th><th>{T('Extra', 'Extra')}</th></tr></thead>
+                  <thead><tr><th>{T('Fecha', 'Data', 'Date')}</th><th>{T('Matrícula', 'Matrícula', 'Plate')}</th><th>{T('Tipo', 'Tipus', 'Type')}</th><th>{T('Resultado', 'Resultat', 'Result')}</th><th>{T('Reserva', 'Reserva', 'Booking')}</th><th>{T('Cliente', 'Client', 'Customer')}</th><th>{T('Extra', 'Extra', 'Extra')}</th></tr></thead>
                   <tbody>
                     {accesos.map((a) => (
                       <tr key={a.id}>
                         <td>{fecha(a.creado_en, locale)}</td>
                         <td><Matricula valor={a.matricula} className="text-xs" /></td>
-                        <td className="capitalize">{a.tipo}</td>
-                        <td><span className={`tag ${a.permitido ? (a.minutos_exceso ? 'tag-warn' : 'tag-ok') : 'tag-danger'}`}>{T(...(MOTIVOS[a.motivo] || [a.motivo, a.motivo]))}</span></td>
+                        <td>{a.tipo === 'salida' ? T('Salida', 'Sortida', 'Exit') : T('Entrada', 'Entrada', 'Entry')}</td>
+                        <td><span className={`tag ${a.permitido ? (a.minutos_exceso ? 'tag-warn' : 'tag-ok') : 'tag-danger'}`}>{T(...(MOTIVOS[a.motivo] || [a.motivo]))}</span></td>
                         <td className="font-mono">{a.reserva?.codigo || '—'}</td>
                         <td>{a.usuario?.nombre || '—'}</td>
                         <td className="font-mono">{a.minutos_exceso ? `${a.minutos_exceso} min · ${eur(a.importe_extra)}` : '—'}</td>
                       </tr>
                     ))}
-                    {accesos.length === 0 && <tr><td colSpan={7} className="text-muted">{T('Todavía no hay lecturas de la barrera.', 'Encara no hi ha lectures de la barrera.')}</td></tr>}
+                    {accesos.length === 0 && <tr><td colSpan={7} className="text-muted">{T('Todavía no hay lecturas de la barrera.', 'Encara no hi ha lectures de la barrera.', 'No barrier readings yet.')}</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -161,26 +161,26 @@ export default function Admin() {
                       {parkings.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                     </select>
                   </label>
-                  <label className="label">{T('Código', 'Codi')}
+                  <label className="label">{T('Código', 'Codi', 'Code')}
                     <input className="field font-mono uppercase" value={nueva.codigo} onChange={(e) => setNueva({ ...nueva, codigo: e.target.value.toUpperCase() })} placeholder="C-01" required />
                   </label>
-                  <label className="label">{T('Planta', 'Planta')}
+                  <label className="label">{T('Planta', 'Planta', 'Floor')}
                     <input className="field" type="number" value={nueva.planta} onChange={(e) => setNueva({ ...nueva, planta: e.target.value })} />
                   </label>
-                  <label className="label">{T('Tipo', 'Tipus')}
+                  <label className="label">{T('Tipo', 'Tipus', 'Type')}
                     <select className="field" value={nueva.tipo} onChange={(e) => setNueva({ ...nueva, tipo: e.target.value })}>
-                      {Object.entries(TIPOS).map(([k, [es, ca]]) => <option key={k} value={k}>{T(es, ca)}</option>)}
+                      {Object.entries(TIPOS).map(([k, nombres]) => <option key={k} value={k}>{T(...nombres)}</option>)}
                     </select>
                   </label>
                   <label className="label">€/h
                     <input className="field" type="number" step="0.05" min="0" value={nueva.precio_hora} onChange={(e) => setNueva({ ...nueva, precio_hora: e.target.value })} required />
                   </label>
-                  <button className="btn btn-accent">{T('Añadir plaza', 'Afegir plaça')}</button>
+                  <button className="btn btn-accent">{T('Añadir plaza', 'Afegir plaça', 'Add space')}</button>
                 </form>
 
                 <div className="card mt-4 overflow-x-auto p-4">
                   <table className="data tnum min-w-[760px]">
-                    <thead><tr><th>{T('Código', 'Codi')}</th><th>Parking</th><th>{T('Planta', 'Planta')}</th><th>{T('Tipo', 'Tipus')}</th><th>€/h</th><th>{T('Estado', 'Estat')}</th><th><span className="sr-only">{T('Acciones', 'Accions')}</span></th></tr></thead>
+                    <thead><tr><th>{T('Código', 'Codi', 'Code')}</th><th>Parking</th><th>{T('Planta', 'Planta', 'Floor')}</th><th>{T('Tipo', 'Tipus', 'Type')}</th><th>€/h</th><th>{T('Estado', 'Estat', 'Status')}</th><th><span className="sr-only">{T('Acciones', 'Accions', 'Actions')}</span></th></tr></thead>
                     <tbody>
                       {plazas.map((p) => (
                         <tr key={p.id} className={p.activa ? '' : 'opacity-55'}>
@@ -191,21 +191,21 @@ export default function Admin() {
                           <td>
                             {editando?.id === p.id ? (
                               <form className="flex gap-2" onSubmit={guardarPrecio}>
-                                <input className="field !min-h-[40px] w-24 font-mono" autoFocus inputMode="decimal" aria-label={T('Nuevo precio por hora', 'Nou preu per hora')}
+                                <input className="field !min-h-[40px] w-24 font-mono" autoFocus inputMode="decimal" aria-label={T('Nuevo precio por hora', 'Nou preu per hora', 'New hourly price')}
                                   value={editando.valor} onChange={(e) => setEditando({ ...editando, valor: e.target.value })} />
                                 <button className="btn btn-primary !min-h-[40px] !px-3 text-sm">OK</button>
-                                <button type="button" className="btn btn-ghost !min-h-[40px] !px-3 text-sm" onClick={() => setEditando(null)}>✕<span className="sr-only">{T('Cancelar', 'Cancel·lar')}</span></button>
+                                <button type="button" className="btn btn-ghost !min-h-[40px] !px-3 text-sm" onClick={() => setEditando(null)}>✕<span className="sr-only">{T('Cancelar', 'Cancel·lar', 'Cancel')}</span></button>
                               </form>
                             ) : (
                               <button type="button" className="min-h-[40px] font-mono font-bold text-link underline underline-offset-4"
-                                title={T('Cambiar precio', 'Canviar preu')} onClick={() => setEditando({ id: p.id, valor: p.precio_hora })}>{eur(p.precio_hora)}</button>
+                                title={T('Cambiar precio', 'Canviar preu', 'Change price')} onClick={() => setEditando({ id: p.id, valor: p.precio_hora })}>{eur(p.precio_hora)}</button>
                             )}
                           </td>
-                          <td><span className={`tag ${p.activa ? 'tag-ok' : 'tag-danger'}`}>{p.activa ? T('Activa', 'Activa') : T('Desactivada', 'Desactivada')}</span></td>
+                          <td><span className={`tag ${p.activa ? 'tag-ok' : 'tag-danger'}`}>{p.activa ? T('Activa', 'Activa', 'Active') : T('Desactivada', 'Desactivada', 'Disabled')}</span></td>
                           <td className="text-right">
                             <button type="button" className="btn btn-ghost !min-h-[40px] !px-3 text-sm"
                               onClick={() => accion(() => api.admin.editarPlaza(p.id, { activa: !p.activa }))}>
-                              {p.activa ? T('Desactivar', 'Desactivar') : T('Activar', 'Activar')}
+                              {p.activa ? T('Desactivar', 'Desactivar', 'Disable') : T('Activar', 'Activar', 'Enable')}
                             </button>
                           </td>
                         </tr>

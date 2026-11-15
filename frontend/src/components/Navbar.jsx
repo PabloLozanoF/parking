@@ -36,16 +36,16 @@ export default function Navbar() {
 
   return (
     <header className="navbar">
-      <div className="wrap flex items-center justify-between gap-3 py-3">
-        <Link to="/" className="flex min-h-[44px] items-center gap-3"><Logo /></Link>
+      <div className="wrap flex items-center justify-between gap-2 py-3 sm:gap-3">
+        <Link to="/" className="flex min-h-[44px] min-w-0 items-center gap-2 sm:gap-3"><Logo /></Link>
 
         <nav className="hidden items-center gap-1 xl:flex" aria-label="Principal">
           {secciones.map(([to, txt]) => <Link key={to} to={to} className="nav-link">{txt}</Link>)}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <div className="flex rounded-[10px] border-[1.5px] border-line/15 p-0.5" role="group" aria-label="Idioma">
-            {['es', 'ca'].map((l) => (
+            {['es', 'ca', 'en'].map((l) => (
               <button key={l} type="button" className="lang-btn" aria-pressed={lang === l} onClick={() => setLang(l)}>{l.toUpperCase()}</button>
             ))}
           </div>

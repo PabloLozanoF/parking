@@ -38,31 +38,31 @@ export default function Login() {
     setEnviando(false);
     if (error) {
       return setError(error.message === 'Invalid login credentials'
-        ? T('Email o contraseña incorrectos.', 'Correu o contrasenya incorrectes.') : error.message);
+        ? T('Email o contraseña incorrectos.', 'Correu o contrasenya incorrectes.', 'Wrong email or password.') : error.message);
     }
     navigate(desde, { replace: true });
   };
 
   return (
-    <CajaCuenta eyebrow={T('Tu cuenta', 'El teu compte')} titulo={T('Entrar', 'Entrar')}>
+    <CajaCuenta eyebrow={T('Tu cuenta', 'El teu compte', 'Your account')} titulo={T('Entrar', 'Entrar', 'Sign in')}>
       {desde.includes('reservar') && (
-        <p className="note note-warn mt-4">{T('Tu reserva está guardada. Entra y la confirmas en un clic.', 'La teva reserva està desada. Entra i la confirmes amb un clic.')}</p>
+        <p className="note note-warn mt-4">{T('Tu reserva está guardada. Entra y la confirmas en un clic.', 'La teva reserva està desada. Entra i la confirmes amb un clic.', 'Your booking is saved. Sign in and confirm it in one click.')}</p>
       )}
       <form className="mt-6 grid gap-4" onSubmit={enviar}>
         <label className="label">Email
           <input className="field" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
         </label>
-        <label className="label">{T('Contraseña', 'Contrasenya')}
+        <label className="label">{T('Contraseña', 'Contrasenya', 'Password')}
           <input className="field" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </label>
         {error && <p className="note note-danger" role="alert">{error}</p>}
         <button className="btn btn-accent w-full" disabled={enviando}>
-          {enviando ? <><span className="spinner" />{T('Entrando…', 'Entrant…')}</> : <><span>{T('Entrar', 'Entrar')}</span><Flecha /></>}
+          {enviando ? <><span className="spinner" />{T('Entrando…', 'Entrant…', 'Signing in…')}</> : <><span>{T('Entrar', 'Entrar', 'Sign in')}</span><Flecha /></>}
         </button>
       </form>
       <p className="mt-5 text-sm">
-        {T('¿No tienes cuenta?', 'No tens compte?')}{' '}
-        <Link to="/registro" state={location.state} className="font-bold text-link underline underline-offset-4">{T('Créala en un minuto', 'Crea-la en un minut')}</Link>
+        {T('¿No tienes cuenta?', 'No tens compte?', 'No account yet?')}{' '}
+        <Link to="/registro" state={location.state} className="font-bold text-link underline underline-offset-4">{T('Créala en un minuto', 'Crea-la en un minut', 'Create one in a minute')}</Link>
       </p>
     </CajaCuenta>
   );

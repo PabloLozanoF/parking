@@ -6,14 +6,20 @@ import { useLang } from '../context/LangContext.jsx';
 import { Flecha, Matricula } from './Comunes.jsx';
 import { aFecha, diaIso, euros, fechaCorta, fmtMatricula, hhmm, normMatricula } from '../utils.js';
 
-// Nombres en catalán de los parkings (en la base de datos están en castellano)
+// Nombres de los parkings en catalán e inglés (en la base de datos están en castellano)
+const PARKING_EN = {
+  centro: ['Centre Car Park', 'Next to the Rambla Nova'],
+  puerto: ['Port Car Park', 'Serrallo and port area'],
+  estacion: ['Station Car Park', 'Right by the train station'],
+};
 export const PARKING_CA = {
   centro: ['Pàrquing Centre', 'A tocar de la Rambla Nova'],
   puerto: ['Pàrquing Port', 'Zona del Serrallo i el port'],
   estacion: ['Pàrquing Estació', "A peu de l'estació de tren"],
 };
-export const nombreParking = (p, lang) => (lang === 'ca' && PARKING_CA[p?.slug]?.[0]) || p?.nombre || '';
-export const zonaParking = (p, lang) => (lang === 'ca' && PARKING_CA[p?.slug]?.[1]) || p?.zona || '';
+const traduccion = (p, lang) => (lang === 'ca' ? PARKING_CA : lang === 'en' ? PARKING_EN : {})[p?.slug];
+export const nombreParking = (p, lang) => traduccion(p, lang)?.[0] || p?.nombre || '';
+export const zonaParking = (p, lang) => traduccion(p, lang)?.[1] || p?.zona || '';
 
 const DURACIONES = [60, 120, 180, 240, 360, 480, 720];
 const BORRADOR = 'tp-borrador'; // reserva a medias mientras el usuario inicia sesión
@@ -118,7 +124,7 @@ export default function Reserva({ pedido, onReservada }) {
   };
 
   const continuar = () => {
-    if (!elegido || elegido.libres === 0) return setErrores({ paso1: T('Elige un parking para continuar.', 'Tria un pàrquing per continuar.') });
+    if (!elegido || elegido.libres === 0) return setErrores({ paso1: T('Elige un parking para continuar.', 'Tria un pàrquing per continuar.', 'Choose a car park to continue.') });
     setErrores({});
     irA(2, true);
   };
@@ -128,10 +134,10 @@ export default function Reserva({ pedido, onReservada }) {
   const pagar = async () => {
     if (paying) return;
     if (!plateOk()) {
-      setErrores({ plate: T('Escribe la matrícula completa, por ejemplo 1234 BCD.', 'Escriu la matrícula completa, per exemple 1234 BCD.') });
+      setErrores({ plate: T('Escribe la matrícula completa, por ejemplo 1234 BCD.', 'Escriu la matrícula completa, per exemple 1234 BCD.', 'Enter the full plate, for example 1234 BCD.') });
       return plateRef.current?.focus();
     }
-    if (!terms) return setErrores({ terms: T('Acepta las condiciones para poder reservar.', 'Accepta les condicions per poder reservar.') });
+    if (!terms) return setErrores({ terms: T('Acepta las condiciones para poder reservar.', 'Accepta les condicions per poder reservar.', 'Accept the terms to book.') });
     setErrores({});
 
     // Sin sesión: guardamos la reserva a medias y vamos a iniciar sesión
@@ -165,8 +171,8 @@ export default function Reserva({ pedido, onReservada }) {
   const copiar = () => {
     if (!last) return;
     navigator.clipboard?.writeText(last.codigo)
-      .then(() => avisar(T('Código copiado', 'Codi copiat')))
-      .catch(() => avisar(T('No se ha podido copiar', "No s'ha pogut copiar")));
+      .then(() => avisar(T('Código copiado', 'Codi copiat', 'Code copied')))
+      .catch(() => avisar(T('No se ha podido copiar', "No s'ha pogut copiar", 'Could not copy')));
   };
 
   const nueva = () => { setPlate(''); setTerms(false); setLast(null); setPark(null); irA(1, true); };
@@ -201,12 +207,12 @@ export default function Reserva({ pedido, onReservada }) {
         <div className="panel-in pt-5">
           <fieldset className="grid gap-3">
             <legend className="legend">{t('b.when')}</legend>
-            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label={T('Día', 'Dia')}>
+            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label={T('Día', 'Dia', 'Day')}>
               {[['0', t('b.today')], ['1', t('b.tomorrow')], ['other', t('b.other')]].map(([d, txt]) => (
                 <button key={d} type="button" className="chip" aria-pressed={day === d} onClick={() => elegirDia(d)}>{txt}</button>
               ))}
               {day === 'other' && (
-                <input type="date" className="field !w-auto" aria-label={T('Fecha', 'Data')} min={diaIso(0)} value={otroDia}
+                <input type="date" className="field !w-auto" aria-label={T('Fecha', 'Data', 'Date')} min={diaIso(0)} value={otroDia}
                   onChange={(e) => { if (e.target.value) { setOtroDia(e.target.value); setDate(e.target.value); } }} />
               )}
             </div>
@@ -228,7 +234,7 @@ export default function Reserva({ pedido, onReservada }) {
             </div>
             <p className="text-sm font-semibold text-ink" aria-live="polite">
               {T(`${fecha(date)} · entras a las ${hhmm(tIn)} y sales a las ${hhmm(fin2)}${fin2 >= 1440 ? ' del día siguiente' : ''}`,
-                `${fecha(date)} · entres a les ${hhmm(tIn)} i surts a les ${hhmm(fin2)}${fin2 >= 1440 ? " de l'endemà" : ''}`)}
+                `${fecha(date)} · entres a les ${hhmm(tIn)} i surts a les ${hhmm(fin2)}${fin2 >= 1440 ? " de l'endemà" : ''}`, `${fecha(date)} · in at ${hhmm(tIn)}, out at ${hhmm(fin2)}${fin2 >= 1440 ? ' the next day' : ''}`)}
             </p>
           </fieldset>
 
@@ -254,10 +260,10 @@ export default function Reserva({ pedido, onReservada }) {
                       {ok && <span className="block font-sans text-xs font-semibold text-muted">{eur(p.precio_hora)}/h</span>}
                     </span>
                     <span className="col-start-2 flex flex-wrap gap-1.5">
-                      {!ok ? <span className="tag tag-danger">{T('Completo en esa franja', 'Complet en aquesta franja')}</span>
-                        : pct < 0.2 ? <span className="tag tag-warn">{T(`Quedan ${p.libres} plazas`, `Queden ${p.libres} places`)}</span>
-                          : <span className="tag tag-ok">{T(`${p.libres} plazas libres`, `${p.libres} places lliures`)}</span>}
-                      {ok && p.precio_total === minimo && <span className="tag bg-accent text-on-accent">{T('Más barato', 'Més barat')}</span>}
+                      {!ok ? <span className="tag tag-danger">{T('Completo en esa franja', 'Complet en aquesta franja', 'Full at that time')}</span>
+                        : pct < 0.2 ? <span className="tag tag-warn">{T(`Quedan ${p.libres} plazas`, `Queden ${p.libres} places`, `Only ${p.libres} spaces left`)}</span>
+                          : <span className="tag tag-ok">{T(`${p.libres} plazas libres`, `${p.libres} places lliures`, `${p.libres} spaces free`)}</span>}
+                      {ok && p.precio_total === minimo && <span className="tag bg-accent text-on-accent">{T('Más barato', 'Més barat', 'Cheapest')}</span>}
                     </span>
                   </label>
                 );
@@ -267,12 +273,12 @@ export default function Reserva({ pedido, onReservada }) {
               <div className="note note-danger mt-3" role="alert">
                 {cargaError}{' '}
                 <button type="button" className="min-h-[44px] font-bold underline underline-offset-4" onClick={() => setReintento((n) => n + 1)}>
-                  {T('Reintentar', 'Tornar-ho a provar')}
+                  {T('Reintentar', 'Tornar-ho a provar', 'Try again')}
                 </button>
               </div>
             )}
             {parkings && !cargaError && parkings.length > 0 && disponibles.length === 0 && (
-              <p className="note note-warn mt-3">{T('No quedan plazas en ningún parking en ese horario. Prueba otra hora.', 'No queden places a cap pàrquing en aquest horari. Prova una altra hora.')}</p>
+              <p className="note note-warn mt-3">{T('No quedan plazas en ningún parking en ese horario. Prueba otra hora.', 'No queden places a cap pàrquing en aquest horari. Prova una altra hora.', 'No car park has free spaces at that time. Try another time.')}</p>
             )}
           </fieldset>
 
@@ -282,8 +288,8 @@ export default function Reserva({ pedido, onReservada }) {
               <p className="tnum font-mono text-3xl font-bold text-ink">{elegido?.precio_total != null ? eur(elegido.precio_total) : '—'}</p>
               <p className="tnum text-xs text-muted">
                 {elegido?.precio_total != null
-                  ? T(`${dur / 60} h × ${eur(elegido.precio_hora)} + ${eur(elegido.gastos_gestion)} de gestión`, `${dur / 60} h × ${eur(elegido.precio_hora)} + ${eur(elegido.gastos_gestion)} de gestió`)
-                  : T('Elige un parking', 'Tria un pàrquing')}
+                  ? T(`${dur / 60} h × ${eur(elegido.precio_hora)} + ${eur(elegido.gastos_gestion)} de gestión`, `${dur / 60} h × ${eur(elegido.precio_hora)} + ${eur(elegido.gastos_gestion)} de gestió`, `${dur / 60} h × ${eur(elegido.precio_hora)} + ${eur(elegido.gastos_gestion)} booking fee`)
+                  : T('Elige un parking', 'Tria un pàrquing', 'Choose a car park')}
               </p>
             </div>
             <button type="button" className="btn btn-accent max-sm:w-full" onClick={continuar}><span>{t('b.next')}</span><Flecha /></button>
@@ -309,8 +315,8 @@ export default function Reserva({ pedido, onReservada }) {
           <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-5 gap-y-2 rounded-2xl bg-sunken p-4 text-sm">
             {[
               ['Parking', nombreParking(elegido, lang)],
-              [T('Día', 'Dia'), fecha(date)],
-              [T('Horario', 'Horari'), `${hhmm(tIn)} – ${hhmm(fin2)}`],
+              [T('Día', 'Dia', 'Day'), fecha(date)],
+              [T('Horario', 'Horari', 'Time'), `${hhmm(tIn)} – ${hhmm(fin2)}`],
               ['Total', elegido ? eur(elegido.precio_total) : '—'],
             ].map(([k, v]) => (
               <div key={k} className="contents"><dt className="text-muted">{k}</dt><dd className="tnum text-right font-bold text-ink">{v}</dd></div>
@@ -324,15 +330,15 @@ export default function Reserva({ pedido, onReservada }) {
           </label>
           {errores.terms && <p className="mt-1 text-sm font-semibold text-danger" role="alert">{errores.terms}</p>}
           {!session && (
-            <p className="note note-warn mt-3">{T('Para confirmar necesitas entrar en tu cuenta. Guardamos lo que has elegido.', 'Per confirmar has d\'entrar al teu compte. Desem el que has triat.')}</p>
+            <p className="note note-warn mt-3">{T('Para confirmar necesitas entrar en tu cuenta. Guardamos lo que has elegido.', 'Per confirmar has d\'entrar al teu compte. Desem el que has triat.', 'To confirm you need to sign in. We keep what you chose.')}</p>
           )}
 
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t-[1.5px] border-line/10 pt-5">
             <button type="button" className="btn btn-ghost" onClick={() => { if (!paying) irA(1, true); }}>{t('b.back')}</button>
             <button type="button" className="btn btn-accent max-sm:flex-1" disabled={paying} onClick={pagar}>
-              {paying ? <><span className="spinner" />{T('Guardando…', 'Desant…')}</>
-                : session ? `${T('Reservar', 'Reservar')} · ${elegido ? eur(elegido.precio_total) : ''}`
-                  : <><span>{T('Entrar y reservar', 'Entrar i reservar')}</span><Flecha /></>}
+              {paying ? <><span className="spinner" />{T('Guardando…', 'Desant…', 'Saving…')}</>
+                : session ? `${T('Reservar', 'Reservar', 'Book')} · ${elegido ? eur(elegido.precio_total) : ''}`
+                  : <><span>{T('Entrar y reservar', 'Entrar i reservar', 'Sign in and book')}</span><Flecha /></>}
             </button>
           </div>
           {errores.pago && <p className="note note-danger mt-3" role="alert">{errores.pago}</p>}
@@ -347,14 +353,14 @@ export default function Reserva({ pedido, onReservada }) {
           <h3 className="display mt-3 text-4xl leading-none">{t('b.okH')}</h3>
           <div className="mt-5 overflow-hidden rounded-2xl border-2 border-ink">
             <div className="bg-primary p-5 text-on-primary">
-              <p className="text-xs font-bold uppercase tracking-widest opacity-80">{T('Código de reserva', 'Codi de reserva')}</p>
+              <p className="text-xs font-bold uppercase tracking-widest opacity-80">{T('Código de reserva', 'Codi de reserva', 'Booking code')}</p>
               <p className="font-mono text-3xl font-bold tracking-widest">{last.codigo}</p>
             </div>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-3 bg-surface p-5 text-sm">
-              <div className="col-span-2"><dt className="text-muted">Parking</dt><dd className="font-bold text-ink">{nombreParking(last.plaza?.parking, lang)} · {T('plaza', 'plaça')} {last.plaza?.codigo}</dd></div>
-              <div><dt className="text-muted">{T('Día', 'Dia')}</dt><dd className="font-bold text-ink">{new Date(last.inicio).toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' })}</dd></div>
-              <div><dt className="text-muted">{T('Horario', 'Horari')}</dt><dd className="tnum font-bold text-ink">{new Date(last.inicio).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })} – {new Date(last.fin).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}</dd></div>
-              <div><dt className="text-muted">{T('Matrícula', 'Matrícula')}</dt><dd><Matricula valor={last.matricula} className="mt-1 text-sm" /></dd></div>
+              <div className="col-span-2"><dt className="text-muted">Parking</dt><dd className="font-bold text-ink">{nombreParking(last.plaza?.parking, lang)} · {T('plaza', 'plaça', 'space')} {last.plaza?.codigo}</dd></div>
+              <div><dt className="text-muted">{T('Día', 'Dia', 'Day')}</dt><dd className="font-bold text-ink">{new Date(last.inicio).toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' })}</dd></div>
+              <div><dt className="text-muted">{T('Horario', 'Horari', 'Time')}</dt><dd className="tnum font-bold text-ink">{new Date(last.inicio).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })} – {new Date(last.fin).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}</dd></div>
+              <div><dt className="text-muted">{T('Matrícula', 'Matrícula', 'Plate')}</dt><dd><Matricula valor={last.matricula} className="mt-1 text-sm" /></dd></div>
               <div><dt className="text-muted">Total</dt><dd className="tnum font-mono text-xl font-bold text-ink">{eur(last.precio_total)}</dd></div>
             </dl>
           </div>

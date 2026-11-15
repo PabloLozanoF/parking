@@ -1,6 +1,6 @@
 # Tarraco Parkings · Reserva tu plaza
 
-Web para reservar plazas en los parkings de Tarragona (proyecto ASIX2). Bilingüe castellano / catalán.
+Web para reservar plazas en los parkings de Tarragona (proyecto ASIX2). Disponible en castellano, catalán e inglés.
 
 | Parte | Tecnología | Carpeta |
 |---|---|---|

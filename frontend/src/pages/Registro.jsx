@@ -19,7 +19,7 @@ export default function Registro() {
 
   const enviar = async (e) => {
     e.preventDefault();
-    if (form.password.length < 6) return setError(T('La contraseña debe tener al menos 6 caracteres.', 'La contrasenya ha de tenir almenys 6 caràcters.'));
+    if (form.password.length < 6) return setError(T('La contraseña debe tener al menos 6 caracteres.', 'La contrasenya ha de tenir almenys 6 caràcters.', 'The password must be at least 6 characters.'));
     setEnviando(true);
     setError('');
     const { data, error } = await registro(form.email, form.password, form.nombre, form.telefono);
@@ -32,36 +32,36 @@ export default function Registro() {
 
   if (confirmar) {
     return (
-      <CajaCuenta eyebrow={T('Casi está', 'Gairebé fet')} titulo={T('Revisa tu correo', 'Revisa el correu')}>
-        <p className="mt-4">{T('Te hemos enviado un email para confirmar la cuenta. Después ya puedes entrar.', "T'hem enviat un correu per confirmar el compte. Després ja pots entrar.")}</p>
-        <Link to="/login" state={location.state} className="btn btn-accent mt-6 w-full">{T('Ir a entrar', 'Anar a entrar')}</Link>
+      <CajaCuenta eyebrow={T('Casi está', 'Gairebé fet', 'Almost done')} titulo={T('Revisa tu correo', 'Revisa el correu', 'Check your email')}>
+        <p className="mt-4">{T('Te hemos enviado un email para confirmar la cuenta. Después ya puedes entrar.', "T'hem enviat un correu per confirmar el compte. Després ja pots entrar.", 'We have sent you an email to confirm your account. Then you can sign in.')}</p>
+        <Link to="/login" state={location.state} className="btn btn-accent mt-6 w-full">{T('Ir a entrar', 'Anar a entrar', 'Go to sign in')}</Link>
       </CajaCuenta>
     );
   }
 
   return (
-    <CajaCuenta eyebrow={T('Nueva cuenta', 'Compte nou')} titulo={T('Crear cuenta', 'Crear compte')}>
+    <CajaCuenta eyebrow={T('Nueva cuenta', 'Compte nou', 'New account')} titulo={T('Crear cuenta', 'Crear compte', 'Create account')}>
       <form className="mt-6 grid gap-4" onSubmit={enviar}>
-        <label className="label">{T('Nombre', 'Nom')}
+        <label className="label">{T('Nombre', 'Nom', 'Name')}
           <input className="field" name="nombre" autoComplete="name" value={form.nombre} onChange={cambiar} required autoFocus />
         </label>
-        <label className="label">{T('Teléfono (opcional)', 'Telèfon (opcional)')}
+        <label className="label">{T('Teléfono (opcional)', 'Telèfon (opcional)', 'Phone (optional)')}
           <input className="field" name="telefono" type="tel" autoComplete="tel" value={form.telefono} onChange={cambiar} />
         </label>
         <label className="label">Email
           <input className="field" name="email" type="email" autoComplete="email" value={form.email} onChange={cambiar} required />
         </label>
-        <label className="label">{T('Contraseña (mínimo 6 caracteres)', 'Contrasenya (mínim 6 caràcters)')}
+        <label className="label">{T('Contraseña (mínimo 6 caracteres)', 'Contrasenya (mínim 6 caràcters)', 'Password (at least 6 characters)')}
           <input className="field" name="password" type="password" autoComplete="new-password" value={form.password} onChange={cambiar} required />
         </label>
         {error && <p className="note note-danger" role="alert">{error}</p>}
         <button className="btn btn-accent w-full" disabled={enviando}>
-          {enviando ? <><span className="spinner" />{T('Creando…', 'Creant…')}</> : <><span>{T('Crear cuenta', 'Crear compte')}</span><Flecha /></>}
+          {enviando ? <><span className="spinner" />{T('Creando…', 'Creant…', 'Creating…')}</> : <><span>{T('Crear cuenta', 'Crear compte', 'Create account')}</span><Flecha /></>}
         </button>
       </form>
       <p className="mt-5 text-sm">
-        {T('¿Ya tienes cuenta?', 'Ja tens compte?')}{' '}
-        <Link to="/login" state={location.state} className="font-bold text-link underline underline-offset-4">{T('Entra', 'Entra')}</Link>
+        {T('¿Ya tienes cuenta?', 'Ja tens compte?', 'Already have an account?')}{' '}
+        <Link to="/login" state={location.state} className="font-bold text-link underline underline-offset-4">{T('Entra', 'Entra', 'Sign in')}</Link>
       </p>
     </CajaCuenta>
   );

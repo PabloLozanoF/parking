@@ -18,7 +18,7 @@ export default function Perfil() {
     setGuardando(true);
     try {
       setPerfil(await api.actualizarPerfil({ nombre, telefono }));
-      avisar(T('Datos guardados', 'Dades desades'));
+      avisar(T('Datos guardados', 'Dades desades', 'Details saved'));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -27,14 +27,14 @@ export default function Perfil() {
   };
 
   return (
-    <CajaCuenta eyebrow={T('Tu cuenta', 'El teu compte')} titulo={T('Mi perfil', 'El meu perfil')}>
+    <CajaCuenta eyebrow={T('Tu cuenta', 'El teu compte', 'Your account')} titulo={T('Mi perfil', 'El meu perfil', 'My profile')}>
       <form className="mt-6 grid gap-4" onSubmit={guardar}>
         <label className="label">Email<input className="field" value={perfil?.email || ''} disabled /></label>
-        <label className="label">{T('Nombre', 'Nom')}<input className="field" autoComplete="name" value={nombre} onChange={(e) => setNombre(e.target.value)} /></label>
-        <label className="label">{T('Teléfono', 'Telèfon')}<input className="field" type="tel" autoComplete="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} /></label>
+        <label className="label">{T('Nombre', 'Nom', 'Name')}<input className="field" autoComplete="name" value={nombre} onChange={(e) => setNombre(e.target.value)} /></label>
+        <label className="label">{T('Teléfono', 'Telèfon', 'Phone')}<input className="field" type="tel" autoComplete="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} /></label>
         {error && <p className="note note-danger" role="alert">{error}</p>}
         <button className="btn btn-accent w-full" disabled={guardando}>
-          {guardando ? <><span className="spinner" />{T('Guardando…', 'Desant…')}</> : T('Guardar cambios', 'Desar canvis')}
+          {guardando ? <><span className="spinner" />{T('Guardando…', 'Desant…', 'Saving…')}</> : T('Guardar cambios', 'Desar canvis', 'Save changes')}
         </button>
       </form>
     </CajaCuenta>

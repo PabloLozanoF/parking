@@ -88,7 +88,7 @@ export default function Inicio() {
                 </tr>
               </thead>
               <tbody>
-                {tarifas === null && <tr><td colSpan={7} className="!text-left text-muted">{T('Cargando tarifas…', 'Carregant tarifes…')}</td></tr>}
+                {tarifas === null && <tr><td colSpan={7} className="!text-left text-muted">{T('Cargando tarifas…', 'Carregant tarifes…', 'Loading prices…')}</td></tr>}
                 {tarifas?.filter((p) => p.tarifas?.normal != null).map((p) => (
                   <tr key={p.id}>
                     <th scope="row">
@@ -98,15 +98,15 @@ export default function Inicio() {
                     {HORAS_TARIFA.map((h) => <td key={h} className="font-mono font-bold text-ink">{eur(precioEstimado(p.tarifas.normal, h * 60).total)}</td>)}
                     <td>
                       <button type="button" className="btn btn-ghost !min-h-[44px] !px-4 text-sm"
-                        aria-label={`${T('Reservar en', 'Reservar a')} ${nombreParking(p, lang)}`}
+                        aria-label={`${T('Reservar en', 'Reservar a', 'Book at')} ${nombreParking(p, lang)}`}
                         onClick={() => setPedido({ slug: p.slug, n: Date.now() })}>
-                        {T('Reservar', 'Reservar')}
+                        {T('Reservar', 'Reservar', 'Book')}
                       </button>
                     </td>
                   </tr>
                 ))}
                 {tarifas?.length === 0 && (
-                  <tr><td colSpan={7} className="!text-left text-danger">{errorTarifas || T('Aún no hay parkings dados de alta.', 'Encara no hi ha pàrquings donats d\'alta.')}</td></tr>
+                  <tr><td colSpan={7} className="!text-left text-danger">{errorTarifas || T('Aún no hay parkings dados de alta.', 'Encara no hi ha pàrquings donats d\'alta.', 'No car parks have been added yet.')}</td></tr>
                 )}
               </tbody>
             </table>

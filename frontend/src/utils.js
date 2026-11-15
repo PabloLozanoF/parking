@@ -1,10 +1,10 @@
 // Utilidades comunes de formato
 
 export const TIPOS = {
-  normal: ['Normal', 'Normal'],
-  moto: ['Moto', 'Moto'],
-  electrico: ['Eléctrico', 'Elèctric'],
-  discapacitados: ['Movilidad reducida', 'Mobilitat reduïda'],
+  normal: ['Normal', 'Normal', 'Standard'],
+  moto: ['Moto', 'Moto', 'Motorbike'],
+  electrico: ['Eléctrico', 'Elèctric', 'Electric'],
+  discapacitados: ['Movilidad reducida', 'Mobilitat reduïda', 'Reduced mobility'],
 };
 
 export const GESTION = 0.10; // 10 % de gastos de gestión (igual que el backend)
@@ -41,7 +41,7 @@ export const aFecha = (dia, minutos) => {
 };
 
 export const planta = (n, T = (es) => es) =>
-  n === 0 ? T('Planta baja', 'Planta baixa') : n < 0 ? T(`Sótano ${-n}`, `Soterrani ${-n}`) : T(`Planta ${n}`, `Planta ${n}`);
+  n === 0 ? T('Planta baja', 'Planta baixa', 'Ground floor') : n < 0 ? T(`Sótano ${-n}`, `Soterrani ${-n}`, `Basement ${-n}`) : T(`Planta ${n}`, `Planta ${n}`, `Floor ${n}`);
 
 // Matrícula: "1234 bcd" → "1234BCD" y vuelta a "1234 BCD"
 export const normMatricula = (v) => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '');

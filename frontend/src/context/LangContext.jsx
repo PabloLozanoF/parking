@@ -1,13 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { TEXTOS } from '../textos.js';
 
-// Idioma (castellano / catalán) y avisos emergentes ("toasts")
+// Idioma (castellano / catalán / inglés) y avisos emergentes ("toasts")
 const LangContext = createContext(null);
 
 function idiomaGuardado() {
   try {
     const l = localStorage.getItem('tp-lang');
-    if (l === 'es' || l === 'ca') return l;
+    if (['es', 'ca', 'en'].includes(l)) return l;
   } catch { /* sin almacenamiento: castellano */ }
   return 'es';
 }
@@ -31,15 +31,16 @@ export function LangProvider({ children }) {
   }, []);
 
   const valor = useMemo(() => {
-    const ca = lang === 'ca';
+    const i = { es: 0, ca: 1, en: 2 }[lang];
     return {
       lang,
       setLang,
       avisar,
-      // t('clave') → texto del diccionario; T('es', 'ca') → texto suelto
-      t: (k) => (TEXTOS[k] ? TEXTOS[k][ca ? 1 : 0] : k),
-      T: (es, cat) => (ca ? cat : es),
-      locale: ca ? 'ca-ES' : 'es-ES',
+      // t('clave') → texto del diccionario; T('es', 'ca', 'en') → texto suelto
+      // (si falta la traducción, se muestra en castellano)
+      t: (k) => (TEXTOS[k] ? TEXTOS[k][i] ?? TEXTOS[k][0] : k),
+      T: (...textos) => textos[i] ?? textos[0],
+      locale: ['es-ES', 'ca-ES', 'en-GB'][i],
     };
   }, [lang, setLang, avisar]);
 
