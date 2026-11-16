@@ -5,8 +5,8 @@ export default Object.assign({
     theme: {
       extend: {
         fontFamily: {
-          sans: ['Barlow', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
-          display: ['"Barlow Condensed"', 'Barlow', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          sans: ['"Source Sans 3"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+          display: ['"Red Hat Display"', '"Source Sans 3"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
           mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
         },
         // Cada color sale de un token CSS de :root (rgb con canal alfa)

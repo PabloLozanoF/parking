@@ -2,11 +2,13 @@ import { useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useLang } from '../context/LangContext.jsx';
-import { Logo } from './Comunes.jsx';
+import { Icono, Logo } from './Comunes.jsx';
 
+// Cabecera en dos pisos, como APCOA: barra fina oscura (idioma y cuenta)
+// y barra blanca con logo, secciones y botón rojo de reservar.
 export default function Navbar() {
   const { session, perfil, esAdmin, logout } = useAuth();
-  const { t, lang, setLang } = useLang();
+  const { t, T, lang, setLang } = useLang();
   const navigate = useNavigate();
   const location = useLocation();
   const menu = useRef(null);
@@ -25,6 +27,7 @@ export default function Navbar() {
   const nombre = perfil?.nombre || session?.user?.email || '';
 
   const secciones = [
+    ['/#parkings', T('Parkings', 'Pàrquings', 'Car parks')],
     ['/#como-funciona', t('n.how')],
     ['/#tarifas', t('n.rates')],
     ['/#barrera', t('n.gate')],
@@ -36,45 +39,56 @@ export default function Navbar() {
 
   return (
     <header className="navbar">
-      <div className="wrap flex items-center justify-between gap-2 py-3 sm:gap-3">
-        <Link to="/" className="flex min-h-[44px] min-w-0 items-center gap-2 sm:gap-3"><Logo /></Link>
-
-        <nav className="hidden items-center gap-1 xl:flex" aria-label="Principal">
-          {secciones.map(([to, txt]) => <Link key={to} to={to} className="nav-link">{txt}</Link>)}
-        </nav>
-
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <div className="flex rounded-[10px] border-[1.5px] border-line/15 p-0.5" role="group" aria-label="Idioma">
-            {['es', 'ca', 'en'].map((l) => (
-              <button key={l} type="button" className="lang-btn" aria-pressed={lang === l} onClick={() => setLang(l)}>{l.toUpperCase()}</button>
-            ))}
-          </div>
-
-          <div className="hidden items-center gap-1 lg:flex">
+      {/* Piso 1 · barra oscura */}
+      <div className="topbar">
+        <div className="wrap flex items-center justify-between gap-2">
+          <p className="hidden items-center gap-2 font-semibold sm:flex">
+            <Icono nombre="pin" className="!h-4 !w-4 text-accent" />{t('h.eyebrow')}
+          </p>
+          <div className="flex w-full items-center justify-between gap-1 sm:w-auto sm:justify-end">
+            <div className="flex" role="group" aria-label="Idioma / Language">
+              {['es', 'ca', 'en'].map((l) => (
+                <button key={l} type="button" className="lang-btn" aria-pressed={lang === l} onClick={() => setLang(l)}>{l.toUpperCase()}</button>
+              ))}
+            </div>
+            <span className="mx-1 hidden h-4 w-px bg-white/20 sm:block" aria-hidden="true" />
             {session ? (
-              <>
-                <NavLink to="/mis-reservas" className="nav-link">{t('n.mine')}</NavLink>
-                {esAdmin && <NavLink to="/admin" className="nav-link">{t('n.admin')}</NavLink>}
-                <NavLink to="/perfil" className="nav-link max-w-[11rem] truncate" title={nombre}>{nombre}</NavLink>
-                <button type="button" className="nav-link" onClick={salir}>{t('n.logout')}</button>
-              </>
+              <div className="flex min-w-0 items-center">
+                <Link to="/perfil" className="top-link min-w-0"><span className="truncate max-w-[9rem] sm:max-w-[14rem]">{nombre}</span></Link>
+                <button type="button" className="top-link" onClick={salir}>{t('n.logout')}</button>
+              </div>
             ) : (
-              <NavLink to="/login" className="nav-link">{t('n.login')}</NavLink>
+              <div className="flex items-center">
+                <Link to="/login" className="top-link">{t('n.login')}</Link>
+                <Link to="/registro" className="top-link hidden sm:inline-flex">{t('n.signup')}</Link>
+              </div>
             )}
           </div>
+        </div>
+      </div>
 
+      {/* Piso 2 · barra blanca */}
+      <div className="wrap flex items-center justify-between gap-3 py-2.5">
+        <Link to="/" className="flex min-h-[44px] items-center gap-2.5"><Logo /></Link>
+
+        <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Principal">
+          {secciones.map(([to, txt]) => <Link key={to} to={to} className="nav-link">{txt}</Link>)}
+          {session && <NavLink to="/mis-reservas" className="nav-link">{t('n.mine')}</NavLink>}
+          {esAdmin && <NavLink to="/admin" className="nav-link">{t('n.admin')}</NavLink>}
+        </nav>
+
+        <div className="flex items-center gap-2">
           <Link to="/#reservar" className="btn btn-accent max-sm:!hidden">{t('n.cta')}</Link>
-
           <details ref={menu} className="menu relative xl:hidden">
-            <summary className="grid h-11 w-11 place-items-center rounded-[10px] border-[1.5px] border-line/15 text-ink" aria-label="Menú">
+            <summary className="grid h-11 w-11 place-items-center rounded-lg border-[1.5px] border-line/15 text-ink" aria-label="Menú">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" /></svg>
             </summary>
-            <nav className="absolute right-0 top-[52px] z-10 grid w-64 gap-1 rounded-2xl border-2 border-ink bg-surface p-2 shadow-xl" aria-label="Menú móvil">
-              <Link to="/#reservar" className="nav-link">{t('n.book')}</Link>
+            <nav className="card absolute right-0 top-[52px] z-10 grid w-64 gap-1 p-2" aria-label="Menú móvil">
+              <Link to="/#reservar" className="btn btn-accent mb-1">{t('n.book')}</Link>
               {secciones.map(([to, txt]) => <Link key={to} to={to} className="nav-link">{txt}</Link>)}
-              <div className="my-1 h-px bg-line/10 lg:hidden" aria-hidden="true" />
-              {cuenta.map(([to, txt]) => <NavLink key={to} to={to} className="nav-link lg:hidden">{txt}</NavLink>)}
-              {session && <button type="button" className="nav-link text-left lg:hidden" onClick={salir}>{t('n.logout')}</button>}
+              <div className="my-1 h-px bg-line/10" aria-hidden="true" />
+              {cuenta.map(([to, txt]) => <NavLink key={to} to={to} className="nav-link">{txt}</NavLink>)}
+              {session && <button type="button" className="nav-link text-left" onClick={salir}>{t('n.logout')}</button>}
             </nav>
           </details>
         </div>

@@ -4,7 +4,7 @@ import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useLang } from '../context/LangContext.jsx';
 import { Flecha, Matricula } from './Comunes.jsx';
-import { aFecha, diaIso, euros, fechaCorta, fmtMatricula, hhmm, normMatricula } from '../utils.js';
+import { TIPOS, aFecha, diaIso, euros, fechaCorta, fmtMatricula, hhmm, normMatricula } from '../utils.js';
 
 // Nombres de los parkings en catalán e inglés (en la base de datos están en castellano)
 const PARKING_EN = {
@@ -59,6 +59,7 @@ export default function Reserva({ pedido, onReservada }) {
   const [tIn, setTIn] = useState(borrador?.tIn ?? 540);
   const [dur, setDur] = useState(borrador?.dur || 120);
   const [park, setPark] = useState(borrador?.park || null);
+  const [tipo, setTipo] = useState(borrador?.tipo || 'normal');
   const [plate, setPlate] = useState(borrador?.plate || '');
   const [terms, setTerms] = useState(Boolean(borrador));
   const [errores, setErrores] = useState({});
@@ -88,12 +89,12 @@ export default function Reserva({ pedido, onReservada }) {
     let vigente = true;
     setCargaError('');
     const id = setTimeout(() => {
-      api.parkingsDisponibles(inicio.toISOString(), fin.toISOString())
+      api.parkingsDisponibles(inicio.toISOString(), fin.toISOString(), tipo)
         .then((d) => { if (vigente) setParkings(d); })
         .catch((e) => { if (vigente) { setParkings((p) => p || []); setCargaError(e.message); } });
     }, 150);
     return () => { vigente = false; clearTimeout(id); };
-  }, [inicio, fin, reintento]);
+  }, [inicio, fin, tipo, reintento]);
 
   const disponibles = (parkings || []).filter((p) => p.libres > 0);
   const elegido = parkings?.find((p) => p.slug === park) || null;
@@ -110,10 +111,11 @@ export default function Reserva({ pedido, onReservada }) {
     }
   }, []);
 
-  // Botón «Reservar» de la tabla de tarifas
+  // Botones «Reservar» de las tarjetas y de la tabla de tarifas
   useEffect(() => {
     if (!pedido) return;
-    setPark(pedido.slug);
+    setPark(pedido.slug || null);
+    if (pedido.tipo) setTipo(pedido.tipo);
     setLast(null);
     irA(1, true);
   }, [pedido, irA]);
@@ -143,7 +145,7 @@ export default function Reserva({ pedido, onReservada }) {
     // Sin sesión: guardamos la reserva a medias y vamos a iniciar sesión
     if (!session) {
       try {
-        sessionStorage.setItem(BORRADOR, JSON.stringify({ day, date, tIn, dur, park, plate }));
+        sessionStorage.setItem(BORRADOR, JSON.stringify({ day, date, tIn, dur, park, tipo, plate }));
       } catch { /* sin almacenamiento: tocará rellenarla otra vez */ }
       return navigate('/login', { state: { desde: '/#reservar' } });
     }
@@ -152,7 +154,7 @@ export default function Reserva({ pedido, onReservada }) {
     try {
       const r = await api.crearReserva({
         parking_id: elegido.id,
-        tipo: 'normal',
+        tipo,
         matricula: normMatricula(plate),
         inicio: inicio.toISOString(),
         fin: fin.toISOString(),
@@ -192,8 +194,20 @@ export default function Reserva({ pedido, onReservada }) {
   };
 
   return (
-    <section id="reservar" ref={caja} className="booking min-w-0 scroll-mt-24 p-4 sm:p-6" aria-labelledby="bookTitle">
+    <section id="reservar" ref={caja} className="min-w-0 scroll-mt-24" aria-labelledby="bookTitle">
       <h2 id="bookTitle" className="sr-only">{t('b.title')}</h2>
+      {/* Pestañas del buscador (como Q-Park): de momento solo «por horas» */}
+      <div className="search-tabs" role="tablist" aria-label={t('b.title')}>
+        <button type="button" role="tab" className="search-tab" aria-selected="true">
+          <svg className="ico !h-5 !w-5" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+          {T('Reservar por horas', 'Reservar per hores', 'Book by the hour')}
+        </button>
+        <button type="button" role="tab" className="search-tab" aria-selected="false" disabled>
+          {T('Abono mensual', 'Abonament mensual', 'Monthly pass')}
+          <span className="tag bg-accent text-on-accent">{T('Pronto', 'Aviat', 'Soon')}</span>
+        </button>
+      </div>
+      <div className="booking has-tabs p-4 sm:p-6">
       <ol className="flex items-center justify-between gap-2 border-b-[1.5px] border-line/10 pb-3" aria-label="Pasos">
         <li><Paso n={1} texto={t('b.s1')} /></li>
         <li aria-hidden="true" className="h-0.5 flex-1 bg-line/15" />
@@ -216,14 +230,20 @@ export default function Reserva({ pedido, onReservada }) {
                   onChange={(e) => { if (e.target.value) { setOtroDia(e.target.value); setDate(e.target.value); } }} />
               )}
             </div>
-            <div className="grid items-start gap-3 sm:grid-cols-[150px_1fr]">
+            <div className="grid items-start gap-3 sm:grid-cols-2">
               <label className="grid gap-1 text-sm font-semibold text-muted">
                 <span>{t('b.in')}</span>
                 <select className="field tnum" value={tIn} onChange={(e) => setTIn(Number(e.target.value))}>
                   {slots.map((m) => <option key={m} value={m}>{hhmm(m)}</option>)}
                 </select>
               </label>
-              <div className="grid gap-1 text-sm font-semibold text-muted">
+              <label className="grid gap-1 text-sm font-semibold text-muted">
+                <span>{T('Tipo de plaza', 'Tipus de plaça', 'Space type')}</span>
+                <select className="field" value={tipo} onChange={(e) => { setTipo(e.target.value); setPark(null); }}>
+                  {Object.entries(TIPOS).map(([k, nombres]) => <option key={k} value={k}>{T(...nombres)}</option>)}
+                </select>
+              </label>
+              <div className="grid gap-1 text-sm font-semibold text-muted sm:col-span-2">
                 <span id="durLbl">{t('b.dur')}</span>
                 <div className="flex flex-wrap gap-2" role="group" aria-labelledby="durLbl">
                   {DURACIONES.map((d) => (
@@ -260,7 +280,7 @@ export default function Reserva({ pedido, onReservada }) {
                       {ok && <span className="block font-sans text-xs font-semibold text-muted">{eur(p.precio_hora)}/h</span>}
                     </span>
                     <span className="col-start-2 flex flex-wrap gap-1.5">
-                      {!ok ? <span className="tag tag-danger">{T('Completo en esa franja', 'Complet en aquesta franja', 'Full at that time')}</span>
+                      {!ok ? <span className="tag tag-danger">{p.total === 0 ? T('Sin plazas de este tipo', 'Sense places d\'aquest tipus', 'No spaces of this type') : T('Completo en esa franja', 'Complet en aquesta franja', 'Full at that time')}</span>
                         : pct < 0.2 ? <span className="tag tag-warn">{T(`Quedan ${p.libres} plazas`, `Queden ${p.libres} places`, `Only ${p.libres} spaces left`)}</span>
                           : <span className="tag tag-ok">{T(`${p.libres} plazas libres`, `${p.libres} places lliures`, `${p.libres} spaces free`)}</span>}
                       {ok && p.precio_total === minimo && <span className="tag bg-accent text-on-accent">{T('Más barato', 'Més barat', 'Cheapest')}</span>}
@@ -315,6 +335,7 @@ export default function Reserva({ pedido, onReservada }) {
           <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-5 gap-y-2 rounded-2xl bg-sunken p-4 text-sm">
             {[
               ['Parking', nombreParking(elegido, lang)],
+              [T('Plaza', 'Plaça', 'Space'), T(...TIPOS[tipo])],
               [T('Día', 'Dia', 'Day'), fecha(date)],
               [T('Horario', 'Horari', 'Time'), `${hhmm(tIn)} – ${hhmm(fin2)}`],
               ['Total', elegido ? eur(elegido.precio_total) : '—'],
@@ -371,6 +392,7 @@ export default function Reserva({ pedido, onReservada }) {
           <button type="button" className="mt-4 min-h-[44px] font-semibold text-link underline underline-offset-4" onClick={nueva}>{t('b.new')}</button>
         </div>
       )}
+      </div>
     </section>
   );
 }
