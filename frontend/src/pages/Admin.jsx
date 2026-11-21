@@ -76,7 +76,7 @@ export default function Admin() {
   const q = normal(filtro.trim());
   const reservasFiltradas = (reservas || []).filter((r) => {
     if (!q) return true;
-    const texto = normal([r.codigo, r.matricula, r.plaza?.codigo, r.plaza?.parking?.nombre, r.usuario?.nombre, r.usuario?.telefono, r.estado, fecha(r.inicio, locale)].join(' '));
+    const texto = normal([r.codigo, r.matricula, r.plaza?.codigo, r.plaza?.parking?.nombre, r.usuario?.nombre, r.usuario?.telefono, r.estado, r.metodo_pago, r.pago_ref, fecha(r.inicio, locale)].join(' '));
     return texto.includes(q) || junto(texto).includes(junto(q));
   });
 
@@ -126,7 +126,7 @@ export default function Admin() {
                           <td><Matricula valor={r.matricula} className="text-xs" /></td>
                           <td>{fecha(r.inicio, locale)}</td>
                           <td>{fecha(r.fin, locale)}</td>
-                          <td className="font-mono font-bold text-ink">{eur(r.precio_total)}</td>
+                          <td className="font-mono font-bold text-ink">{eur(r.precio_total)}{r.metodo_pago && <><br /><span className="font-sans text-xs font-normal capitalize text-muted">{r.metodo_pago}</span></>}</td>
                           <td>
                             <select className="field !min-h-[40px] !w-auto" aria-label={T('Estado', 'Estat', 'Status')} value={r.estado}
                               onChange={(e) => accion(() => api.admin.cambiarEstado(r.id, e.target.value), T('Estado cambiado', 'Estat canviat', 'Status changed'))}>

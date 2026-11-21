@@ -38,7 +38,7 @@ router.get('/resumen', asyncHandler(async (_req, res) => {
 router.get('/reservas', asyncHandler(async (_req, res) => {
   const { data, error } = await supabase
     .from('reservas')
-    .select('id, codigo, matricula, inicio, fin, precio_base, gastos_gestion, precio_total, estado, plaza:plazas(codigo, parking:parkings(nombre)), usuario:perfiles(nombre, telefono)')
+    .select('id, codigo, matricula, inicio, fin, precio_base, gastos_gestion, precio_total, estado, metodo_pago, pago_ref, plaza:plazas(codigo, parking:parkings(nombre)), usuario:perfiles(nombre, telefono)')
     .order('inicio', { ascending: false })
     .limit(500);
   if (error) throw error;
