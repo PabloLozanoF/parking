@@ -212,7 +212,7 @@ function Datos() {
     <Panel titulo={T('Datos personales', 'Dades personals', 'Personal details')}>
       <form className="grid max-w-lg gap-4" onSubmit={guardar}>
         <label className="label">Email<input className="field" value={perfil?.email || ''} disabled /></label>
-        <label className="label">{T('Nombre', 'Nom', 'Name')}<input className="field" autoComplete="name" value={nombre} onChange={(e) => setNombre(e.target.value)} /></label>
+        <label className="label">{T('Nombre y apellidos', 'Nom i cognoms', 'Full name')}<input className="field" autoComplete="name" value={nombre} onChange={(e) => setNombre(e.target.value)} /></label>
         <label className="label">{T('Teléfono', 'Telèfon', 'Phone')}<input className="field" type="tel" autoComplete="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} /></label>
         {error && <p className="note note-danger" role="alert">{error}</p>}
         <button className="btn btn-accent justify-self-start">{T('Guardar cambios', 'Desar canvis', 'Save changes')}</button>
