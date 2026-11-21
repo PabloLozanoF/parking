@@ -70,9 +70,15 @@ export default function Admin() {
     accion(() => api.admin.editarPlaza(id, { precio_hora: String(valor).replace(',', '.') }), T('Precio actualizado', 'Preu actualitzat', 'Price updated'));
   };
 
-  const q = filtro.toLowerCase();
-  const reservasFiltradas = (reservas || []).filter((r) =>
-    !q || [r.codigo, r.matricula, r.plaza?.codigo, r.plaza?.parking?.nombre, r.usuario?.nombre, r.estado, fecha(r.inicio, locale)].join(' ').toLowerCase().includes(q));
+  // Búsqueda sin importar mayúsculas, acentos, espacios ni guiones («2716 khg» = «2716KHG», «nuria» = «Núria»)
+  const normal = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const junto = (t) => t.replace(/[\s\-·.]/g, '');
+  const q = normal(filtro.trim());
+  const reservasFiltradas = (reservas || []).filter((r) => {
+    if (!q) return true;
+    const texto = normal([r.codigo, r.matricula, r.plaza?.codigo, r.plaza?.parking?.nombre, r.usuario?.nombre, r.usuario?.telefono, r.estado, fecha(r.inicio, locale)].join(' '));
+    return texto.includes(q) || junto(texto).includes(junto(q));
+  });
 
   const kpis = resumen && [
     [T('Plazas libres ahora', 'Places lliures ara', 'Free spaces now'), `${resumen.libres_ahora} / ${resumen.plazas_activas}`],
