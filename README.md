@@ -22,7 +22,8 @@ Web para reservar plazas en los parkings de Tarragona (proyecto ASIX2). Disponib
 ### 1. Supabase
 1. Crea un proyecto en [supabase.com](https://supabase.com).
 2. Ve a **SQL Editor → New query**, pega el contenido de `supabase/schema.sql` y pulsa **Run**.
-3. Haz lo mismo con `supabase/02_rediseno.sql` (añade los parkings, el código de reserva y la tabla `accesos`) y después con `supabase/03_cuenta.sql` (vehículos guardados, preferencias y nombre al entrar con Google). Se pueden ejecutar más de una vez.
+3. Haz lo mismo con `supabase/02_rediseno.sql` (añade los parkings, el código de reserva y la tabla `accesos`) después con `supabase/03_cuenta.sql` (vehículos guardados, preferencias y nombre al entrar con Google) y por último `supabase/04_seguridad.sql`. Se pueden ejecutar más de una vez.
+   *(En el proyecto de Supabase de Tarraco Parkings ya están aplicados los cuatro.)*
 4. En **Project Settings → API** copia la *Project URL*, la clave *anon public* y la clave *service_role*.
 5. (Opcional, para pruebas) En **Authentication → Providers → Email** puedes desactivar *Confirm email*.
 

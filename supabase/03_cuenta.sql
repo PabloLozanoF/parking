@@ -8,6 +8,8 @@
 -- ---------------------------------------------------------------------
 -- 1. Al entrar con Google el nombre llega como full_name / name
 -- ---------------------------------------------------------------------
+alter table public.perfiles add column if not exists email text;
+
 create or replace function public.crear_perfil()
 returns trigger
 language plpgsql
@@ -15,7 +17,7 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.perfiles (id, nombre, telefono)
+  insert into public.perfiles (id, nombre, telefono, email)
   values (
     new.id,
     coalesce(
@@ -24,7 +26,8 @@ begin
       nullif(new.raw_user_meta_data ->> 'name', ''),
       ''
     ),
-    new.raw_user_meta_data ->> 'telefono'
+    new.raw_user_meta_data ->> 'telefono',
+    new.email
   )
   on conflict (id) do nothing;
   return new;
@@ -50,17 +53,28 @@ alter table public.perfiles
 -- ---------------------------------------------------------------------
 create table if not exists public.vehiculos (
   id          bigint generated always as identity primary key,
-  usuario_id  uuid not null references public.perfiles (id) on delete cascade,
+  usuario_id  uuid not null default auth.uid() references public.perfiles (id) on delete cascade,
   matricula   text not null,
-  alias       text not null default '',
-  pais        text not null default 'ES' check (pais in ('ES', 'OTRO')),
-  principal   boolean not null default false,
+  alias       text,
   creado_en   timestamptz not null default now(),
-  unique (usuario_id, matricula),
-  constraint vehiculos_matricula_ok check (
-    (pais = 'ES'   and matricula ~ '^[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$') or
-    (pais = 'OTRO' and matricula ~ '^[A-Z0-9]{2,10}$')
-  )
+  unique (usuario_id, matricula)
+);
+
+-- Si la tabla ya existía, se completa sin perder datos
+alter table public.vehiculos
+  add column if not exists pais      text    not null default 'ES',
+  add column if not exists principal boolean not null default false;
+alter table public.vehiculos alter column alias set default '';
+
+alter table public.vehiculos drop constraint if exists vehiculos_pais_check;
+alter table public.vehiculos add constraint vehiculos_pais_check check (pais in ('ES', 'OTRO'));
+
+-- Matrícula según el país (sustituye a la regla antigua de 4 a 10 caracteres)
+alter table public.vehiculos drop constraint if exists vehiculos_matricula_check;
+alter table public.vehiculos drop constraint if exists vehiculos_matricula_ok;
+alter table public.vehiculos add constraint vehiculos_matricula_ok check (
+  (pais = 'ES'   and matricula ~ '^[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$') or
+  (pais = 'OTRO' and matricula ~ '^[A-Z0-9]{2,10}$')
 );
 
 -- Solo un vehículo principal por usuario
