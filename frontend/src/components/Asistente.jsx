@@ -74,10 +74,7 @@ export default function Asistente() {
         <section ref={panel} tabIndex={-1} className="asistente-panel panel-in" aria-label={T('Asistente', 'Assistent', 'Assistant')}>
           <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-line/10 bg-surface p-4">
             <span className="asistente-avatar" aria-hidden="true">P</span>
-            <div className="min-w-0 flex-1">
-              <p className="font-display font-extrabold text-ink">{T('Asistente Tarraco', 'Assistent Tarraco', 'Tarraco assistant')}</p>
-              <p className="text-xs text-muted">{T('Solo dudas sobre el parking', 'Només dubtes sobre el pàrquing', 'Parking questions only')}</p>
-            </div>
+            <p className="min-w-0 flex-1 font-display font-extrabold text-ink">{T('Asistente Tarraco', 'Assistent Tarraco', 'Tarraco assistant')}</p>
             {activo === false && <span className="tag tag-warn">{T('Pronto', 'Aviat', 'Soon')}</span>}
             <button type="button" className="grid h-10 w-10 place-items-center rounded-lg text-muted hover:bg-sunken" onClick={() => setAbierto(false)} aria-label={T('Cerrar', 'Tancar', 'Close')}>
               <svg className="ico !h-5 !w-5" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
