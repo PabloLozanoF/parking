@@ -35,7 +35,14 @@ export default function Admin() {
       setError(e.message);
     }
   };
-  useEffect(() => { cargar(); }, []);
+  // Se actualiza solo: al entrar, cada 15 segundos y al volver a la pestaña
+  useEffect(() => {
+    cargar();
+    const id = setInterval(cargar, 15000);
+    const alVolver = () => { if (document.visibilityState === 'visible') cargar(); };
+    document.addEventListener('visibilitychange', alVolver);
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', alVolver); };
+  }, []);
 
   const accion = async (fn, ok) => {
     setError('');
@@ -65,10 +72,10 @@ export default function Admin() {
 
   const q = filtro.toLowerCase();
   const reservasFiltradas = (reservas || []).filter((r) =>
-    !q || [r.codigo, r.matricula, r.plaza?.codigo, r.plaza?.parking?.nombre, r.usuario?.nombre].join(' ').toLowerCase().includes(q));
+    !q || [r.codigo, r.matricula, r.plaza?.codigo, r.plaza?.parking?.nombre, r.usuario?.nombre, r.estado, fecha(r.inicio, locale)].join(' ').toLowerCase().includes(q));
 
   const kpis = resumen && [
-    [T('Plazas activas', 'Places actives', 'Active spaces'), resumen.plazas_activas],
+    [T('Plazas libres ahora', 'Places lliures ara', 'Free spaces now'), `${resumen.libres_ahora} / ${resumen.plazas_activas}`],
     [T('Ocupadas ahora', 'Ocupades ara', 'Occupied now'), resumen.ocupadas_ahora],
     [T('Reservas pendientes', 'Reserves pendents', 'Upcoming bookings'), resumen.reservas_pendientes],
     [T('Ingresos', 'Ingressos', 'Revenue'), eur(resumen.ingresos_totales)],
