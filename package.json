@@ -1,0 +1,9 @@
+{
+  "name": "tarraco-parkings",
+  "private": true,
+  "description": "Atajos para arrancar el proyecto desde la carpeta principal (panel NPM Scripts de VS Code)",
+  "scripts": {
+    "backend": "npm --prefix backend run dev",
+    "frontend": "npm --prefix frontend run dev"
+  }
+}
