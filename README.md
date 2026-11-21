@@ -81,4 +81,4 @@ where id = (select id from auth.users where email = 'TU_EMAIL');
 - **Justificante** de cada reserva, imprimible o en PDF desde el navegador.
 - **Mi cuenta:** resumen y «reservar otra vez», vehículos guardados, justificantes, datos, preferencias (tema claro/oscuro, idioma, avisos), métodos de pago (pendiente de pasarela) y seguridad.
 - **Cookies:** «Solo necesarias» o «Aceptar todas»; se recuerda la elección.
-- **Asistente:** botón abajo a la derecha, todavía sin conectar. Las instrucciones para Gemini están en `frontend/src/components/Asistente.jsx`; la clave de Google AI Studio irá en `backend/.env`, nunca en el frontend.
+- **Asistente:** botón abajo a la derecha. Usa Gemini a través del backend (`/api/asistente`), con las tarifas reales de la base de datos. Para activarlo, pon `GEMINI_API_KEY=...` (Google AI Studio → Get API key) en `backend/.env` y reinicia el backend. La clave nunca va en el frontend.

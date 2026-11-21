@@ -8,6 +8,7 @@ import adminRouter from './routes/admin.js';
 import parkingsRouter from './routes/parkings.js';
 import accesosRouter from './routes/accesos.js';
 import vehiculosRouter from './routes/vehiculos.js';
+import asistenteRouter from './routes/asistente.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -23,6 +24,7 @@ app.use('/api/vehiculos', vehiculosRouter);
 app.use('/api/reservas', reservasRouter);
 app.use('/api/perfil', perfilRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/asistente', asistenteRouter);
 
 app.use((_req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
 
