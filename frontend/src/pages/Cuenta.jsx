@@ -243,12 +243,11 @@ function Preferencias() {
   const TEMAS = [
     ['claro', ['Claro', 'Clar', 'Light'], 'muestra-clara'],
     ['oscuro', ['Oscuro', 'Fosc', 'Dark'], 'muestra-oscura'],
-    ['sistema', ['Como el dispositivo', 'Com el dispositiu', 'Match device'], 'muestra-auto'],
   ];
   return (
     <div className="grid gap-6">
       <Panel titulo={T('Apariencia', 'Aparença', 'Appearance')} texto={T('Elige cómo quieres ver la web.', 'Tria com vols veure la web.', 'Choose how the site looks.')}>
-        <div className="grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label={T('Tema', 'Tema', 'Theme')}>
+        <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label={T('Tema', 'Tema', 'Theme')}>
           {TEMAS.map(([k, n, cls]) => (
             <button key={k} type="button" role="radio" aria-checked={tema === k} className="tema-op" onClick={() => cambiarTema(k)}>
               <span className={`muestra ${cls}`} aria-hidden="true"><i /><i /><i /></span>
