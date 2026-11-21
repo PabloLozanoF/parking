@@ -6,11 +6,11 @@ import { GESTION } from '../utils.js';
  * Asistente del parking con Google Gemini (clave de Google AI Studio).
  * Configuración en backend/.env:
  *   GEMINI_API_KEY=tu-clave-de-google-ai-studio   (obligatoria)
- *   GEMINI_MODEL=gemini-flash-latest              (opcional; si falla se prueban otros)
+ *   GEMINI_MODEL=gemini-flash-lite-latest             (opcional; si falla se prueban otros)
  * La clave se queda en el servidor: el navegador nunca la ve.
  */
 // Se prueban en orden: si un modelo no existe para tu clave, se pasa al siguiente
-const MODELOS = () => [...new Set([process.env.GEMINI_MODEL, 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.0-flash'].filter(Boolean))];
+const MODELOS = () => [...new Set([process.env.GEMINI_MODEL, 'gemini-flash-lite-latest', 'gemini-flash-latest', 'gemini-2.5-flash-lite', 'gemini-2.0-flash-lite'].filter(Boolean))];
 let modeloBueno = null; // el primero que ha funcionado
 const URL_API = (m) => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
 const MAX_MENSAJES = 12;
