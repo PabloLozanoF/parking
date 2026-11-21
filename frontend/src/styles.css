@@ -10,6 +10,7 @@
    servicios y pie corporativo). Acento rojo de señal de tráfico.
    ============================================================= */
 :root {
+  color-scheme: light;
   /* Superficies */
   --ground: 244 246 249;  --surface: 255 255 255;  --sunken: 235 240 246;
   /* Texto (--ink también pinta los bordes, con transparencia) */
@@ -34,28 +35,8 @@
   --shadow: 0 1px 2px rgb(11 27 51 / .06), 0 8px 24px -12px rgb(11 27 51 / .18);
   --shadow-lg: 0 2px 4px rgb(11 27 51 / .08), 0 24px 48px -20px rgb(11 27 51 / .35);
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --ground: 7 13 25;  --surface: 14 24 41;  --sunken: 22 34 55;
-    --ink: 236 241 248;  --body: 198 209 225;  --muted: 150 165 186;
-    --primary: 60 125 225;  --on-primary: 255 255 255;  --link: 135 180 255;
-    --accent: 230 52 62;  --on-accent: 255 255 255;
-    --ok: 96 220 140;  --ok-bg: 16 52 36;  --warn: 252 205 90;  --warn-bg: 60 44 10;  --danger: 255 150 160;  --danger-bg: 70 20 30;
-    --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 8px 24px -12px rgb(0 0 0 / .6);
-    --shadow-lg: 0 2px 4px rgb(0 0 0 / .3), 0 24px 48px -20px rgb(0 0 0 / .7);
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --ground: 7 13 25;  --surface: 14 24 41;  --sunken: 22 34 55;
-  --ink: 236 241 248;  --body: 198 209 225;  --muted: 150 165 186;
-  --primary: 60 125 225;  --on-primary: 255 255 255;  --link: 135 180 255;
-  --accent: 230 52 62;  --on-accent: 255 255 255;
-  --ok: 96 220 140;  --ok-bg: 16 52 36;  --warn: 252 205 90;  --warn-bg: 60 44 10;  --danger: 255 150 160;  --danger-bg: 70 20 30;
-  --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 8px 24px -12px rgb(0 0 0 / .6);
-  --shadow-lg: 0 2px 4px rgb(0 0 0 / .3), 0 24px 48px -20px rgb(0 0 0 / .7);
-  color-scheme: dark;
-}
+
+
 
 /* ---------- Base ---------- */
 [hidden] { display: none !important; }
@@ -109,6 +90,9 @@ section[id] { scroll-margin-top: 84px; }
 .btn-primary:hover { box-shadow: 0 10px 24px -10px rgb(var(--primary) / .8); }
 .btn-ghost { border: 1.5px solid rgb(var(--ink) / .25); color: rgb(var(--ink)); background: transparent; }
 .btn-light { background: #fff; color: rgb(11 27 51); }
+/* Botón de Google: blanco con borde, según las normas de marca de Google */
+.btn-google { background: #fff; color: #1f1f1f; border: 1px solid #747775; font-family: Roboto, var(--font-body); font-weight: 600; }
+.btn-google:hover { background: #f8faff; box-shadow: 0 1px 3px rgb(60 64 67 / .3); }
 .btn-light:hover { box-shadow: 0 12px 24px -12px rgb(0 0 0 / .6); }
 .btn-ghost:hover { border-color: rgb(var(--ink)); background: rgb(var(--ink) / .04); }
 .btn[disabled] { opacity: .55; cursor: wait; transform: none; box-shadow: none; }
@@ -259,3 +243,203 @@ table.data { width: 100%; border-collapse: collapse; font-size: .92rem; }
 table.data th, table.data td { padding: 10px 12px; text-align: left; border-bottom: 1.5px solid rgb(var(--ink) / .08); vertical-align: middle; }
 table.data thead th { font-family: var(--font-display); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: rgb(var(--muted)); white-space: nowrap; }
 table.data tbody tr:hover { background: rgb(var(--ink) / .03); }
+
+/* ===== Versión blanca: portada, barra superior y pie claros ===== */
+:root { --hero: 255 255 255; --hero-2: 238 243 250; --hero-ink: 11 27 51; --hero-body: 72 86 108; }
+
+
+.sign { background: rgb(11 27 51); }
+.topbar { background: rgb(var(--sunken)); color: rgb(var(--muted)); border-bottom: 1px solid rgb(var(--ink) / .06); }
+.topbar a, .topbar button { color: rgb(var(--body)); }
+.topbar a:hover, .topbar button:hover { color: rgb(var(--ink)); }
+.lang-btn { color: rgb(var(--muted)); }
+.lang-btn:hover { color: rgb(var(--ink)); }
+.lang-btn[aria-pressed="true"] { background: rgb(var(--surface)); color: rgb(var(--ink)); box-shadow: 0 1px 2px rgb(var(--ink) / .12); }
+.hero { color: rgb(var(--body)); border-bottom: 1px solid rgb(var(--ink) / .06); }
+.hero h1, .hero h2, .hero .eyebrow { color: rgb(var(--ink)); }
+.hero-art { color: rgb(var(--ink)); opacity: .6; }
+.pcard-art { color: rgb(var(--ink)); border-bottom: 1px solid rgb(var(--ink) / .06); }
+.search-tab { color: rgb(var(--body)); background: rgb(var(--sunken)); }
+.search-tab[aria-selected="true"] { box-shadow: inset 0 3px 0 rgb(var(--accent)), 0 -1px 0 rgb(var(--ink) / .06); }
+.cta-card { border: 1px solid rgb(var(--ink) / .08); box-shadow: var(--shadow-lg); }
+.site-footer { color: rgb(var(--body)); border-top: 1px solid rgb(var(--ink) / .08); background: rgb(var(--surface)); }
+.site-footer .f-title { color: rgb(var(--ink)); }
+.site-footer a { color: rgb(var(--body)); }
+.site-footer a:hover { color: rgb(var(--link)); }
+
+/* ===== v4: destinos rápidos, cifras, mapa y garantía ===== */
+.destino { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid rgb(var(--ink) / .14); background: rgb(var(--surface)); color: rgb(var(--ink)); font-weight: 600; box-shadow: var(--shadow); transition: border-color .2s, transform .2s, color .2s; }
+.destino .ico { color: rgb(var(--accent)); }
+.destino:hover { border-color: rgb(var(--accent)); transform: translateY(-1px); }
+.cifras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; padding: 20px 24px; border-radius: 14px; background: rgb(var(--surface)); border: 1px solid rgb(var(--ink) / .08); }
+@media (min-width: 768px) { .cifras { grid-template-columns: repeat(4, minmax(0, 1fr)); } .cifras > div + div { border-left: 1px solid rgb(var(--ink) / .08); padding-left: 20px; } }
+.mapa { overflow: hidden; border-radius: 14px; border: 1px solid rgb(var(--ink) / .08); background: rgb(var(--surface)); box-shadow: var(--shadow); }
+.mapa-pin { cursor: pointer; outline: none; }
+.mapa-pin path { transition: transform .2s; transform-box: fill-box; transform-origin: 50% 100%; }
+.mapa-pin:hover path, .mapa-pin:focus-visible path { transform: scale(1.12); }
+.mapa-pin:focus-visible rect { stroke: rgb(var(--link)); stroke-width: 3; }
+.garantia { display: flex; flex-wrap: wrap; gap: 32px 56px; align-items: flex-start; padding: clamp(24px, 4vw, 44px); border-radius: 18px; background: rgb(var(--surface)); border: 1px solid rgb(var(--ink) / .08); box-shadow: var(--shadow); }
+
+@media (max-width: 639px) { .mapa-lbl { display: none; } }
+
+/* ===== v5: acabado (referencias: Airbnb, Uber, Stripe, Booking) ===== */
+/* Precios con la tipografía de titulares y cifras tabulares (no monoespaciada) */
+.precio { font-family: var(--font-display); font-weight: 800; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+/* Día con su fecha debajo */
+.chip-dia { flex-direction: column; gap: 0; min-height: 52px; line-height: 1.15; padding: 6px 16px; }
+.chip-sub { font-size: .75rem; font-weight: 600; opacity: .7; }
+/* Tipos de plaza como iconos */
+.tipo-ico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; background: rgb(var(--sunken)); color: rgb(var(--ink)); }
+/* Pastillas de filtro */
+.pill { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1.5px solid rgb(var(--ink) / .14); background: rgb(var(--surface)); color: rgb(var(--ink)); font-weight: 700; transition: border-color .2s, background-color .2s, color .2s; }
+.pill:hover { border-color: rgb(var(--ink) / .5); }
+.pill[aria-pressed="true"] { background: rgb(var(--ink)); border-color: rgb(var(--ink)); color: rgb(var(--surface)); }
+/* Recorrido: la línea discontinua de un carril une los pasos */
+.ruta { display: grid; gap: 36px; position: relative; }
+@media (min-width: 900px) {
+  .ruta { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; }
+  .ruta-paso:not(:last-child)::before { content: ""; position: absolute; left: 58px; right: -14px; top: 21px; height: 3px; background: repeating-linear-gradient(90deg, rgb(var(--ink) / .22) 0 18px, transparent 18px 32px); }
+}
+@media (max-width: 899px) {
+  .ruta { padding-left: 0; }
+  .ruta-paso { position: relative; padding-left: 64px; }
+  .ruta-paso .how-n { position: absolute; left: 0; top: 0; }
+  .ruta-paso h3 { margin-top: 6px; }
+  .ruta-paso:not(:last-child)::after { content: ""; position: absolute; left: 21px; top: 52px; bottom: -30px; width: 3px; background: repeating-linear-gradient(180deg, rgb(var(--ink) / .22) 0 14px, transparent 14px 26px); }
+}
+.ruta-paso { position: relative; }
+.ruta .how-n { z-index: 1; box-shadow: 0 0 0 6px rgb(var(--ground)); }
+@media (min-width: 900px) { .ruta .how-n { position: relative; } }
+/* Banda final oscura: el único bloque oscuro, para cerrar con contraste */
+.cta-oscura { position: relative; overflow: hidden; background: rgb(11 27 51); color: rgb(196 211 232); }
+.cta-oscura h2 { color: #fff; }
+.cta-oscura::after { content: ""; position: absolute; left: 0; right: 0; bottom: 20px; height: 4px; background: repeating-linear-gradient(90deg, rgb(255 255 255 / .18) 0 28px, transparent 28px 48px); pointer-events: none; }
+.cta-oscura .sign { background: #fff; color: rgb(11 27 51); }
+.cta-oscura .btn { position: relative; z-index: 1; }
+/* Cabecera con sombra al bajar */
+.navbar.is-scrolled { box-shadow: 0 8px 24px -16px rgb(11 27 51 / .35); }
+.skip-link { position: absolute; left: 16px; top: -60px; z-index: 100; padding: 10px 14px; border-radius: 8px; background: rgb(var(--ink)); color: rgb(var(--surface)); font-weight: 700; }
+.skip-link:focus { top: 8px; }
+/* Barra fija inferior en móvil */
+.barra-movil { position: fixed; z-index: 60; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px max(16px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: rgb(var(--surface)); border-top: 1px solid rgb(var(--ink) / .1); box-shadow: 0 -8px 24px -16px rgb(11 27 51 / .4); animation: subir .25s ease-out; }
+@keyframes subir { from { transform: translateY(100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .barra-movil { animation: none; } }
+@media (max-width: 767px) { .site-footer { padding-bottom: 76px; } }
+
+/* =============================================================
+   v6 · Paleta limpia: blanco, grises fríos y el azul de las señales
+   de parking. Cada parking tiene su color (azul, verde azulado, ámbar),
+   que se repite en el mapa, las tarjetas y los botones de destino.
+   ============================================================= */
+:root {
+  --ground: 248 250 252;  --surface: 255 255 255;  --sunken: 241 245 249;
+  --ink: 15 23 42;  --body: 51 65 85;  --muted: 100 116 139;
+  --primary: 15 23 42;  --on-primary: 255 255 255;  --link: 29 78 216;
+  --accent: 37 99 235;  --on-accent: 255 255 255;
+  --hero: 255 255 255;  --hero-2: 239 246 255;  --hero-ink: 15 23 42;  --hero-body: 71 85 105;
+  --c-centro: 37 99 235;  --c-puerto: 13 148 136;  --c-estacion: 217 119 6;
+  --marker: 253 224 71;
+  --scene-car: 37 99 235;
+  --shadow: 0 1px 2px rgb(15 23 42 / .05), 0 8px 24px -14px rgb(15 23 42 / .16);
+  --shadow-lg: 0 2px 4px rgb(15 23 42 / .06), 0 24px 48px -22px rgb(15 23 42 / .28);
+}
+/* Logo: la señal azul de parking, tal cual */
+.sign { background: rgb(var(--accent)); color: #fff; box-shadow: inset 0 0 0 2px rgb(255 255 255 / .9), 0 0 0 1.5px rgb(var(--accent)); }
+/* Subrayado de rotulador amarillo bajo la frase clave */
+.paint { background: linear-gradient(rgb(var(--marker)), rgb(var(--marker))) 0 88% / 100% .32em no-repeat; }
+.hero { background: linear-gradient(180deg, rgb(var(--hero)) 0%, rgb(var(--hero-2)) 100%); border-bottom: 0; }
+.hero-art { -webkit-mask-image: none; mask-image: none; opacity: 1; }
+.eyebrow { color: rgb(var(--accent)); }
+.topbar { background: rgb(var(--surface)); border-bottom: 1px solid rgb(var(--ink) / .06); }
+.lang-btn[aria-pressed="true"] { background: rgb(var(--sunken)); box-shadow: none; }
+.tag.bg-accent { background: rgb(var(--marker)); color: rgb(var(--ink)); }
+.usp { background: rgb(var(--surface)); }
+.usp-ico { background: rgb(var(--accent) / .1); color: rgb(var(--accent)); }
+.usp li:nth-child(2) .usp-ico { background: rgb(var(--c-puerto) / .12); color: rgb(var(--c-puerto)); }
+.usp li:nth-child(3) .usp-ico { background: rgb(var(--c-estacion) / .14); color: rgb(var(--c-estacion)); }
+.cookie-bar { border-top-color: rgb(var(--accent)); }
+/* Colores por parking */
+.c-centro { --pk: var(--c-centro); }  .c-puerto { --pk: var(--c-puerto); }  .c-estacion { --pk: var(--c-estacion); }
+.pk-dot { display: grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: 50%; background: rgb(var(--pk)); color: #fff; font-size: .75rem; font-weight: 800; }
+.pcard-pin { background: rgb(var(--pk, var(--accent))); }
+.pcard-art { background: linear-gradient(160deg, rgb(var(--pk) / .10), rgb(var(--pk) / .22)); border-bottom: 0; }
+.destino .ico { color: rgb(var(--pk, var(--accent))); }
+.destino:hover { border-color: rgb(var(--pk, var(--accent))); }
+/* Banda final: azul de señal, con coches de colores */
+.cta-oscura { background: linear-gradient(120deg, rgb(29 78 216), rgb(37 99 235) 55%, rgb(56 132 255)); color: rgb(219 234 254); }
+.cta-oscura::after { display: none; }
+.cta-oscura .sign { background: #fff; color: rgb(var(--accent)); box-shadow: none; }
+.cta-oscura .btn-accent { background: #fff; color: rgb(var(--accent)); }
+.cta-art { position: absolute; inset: auto 0 0 0; height: 70px; pointer-events: none; }
+/* Garantía y recorrido en azul */
+.garantia .usp-ico { background: rgb(var(--accent) / .1); color: rgb(var(--accent)); }
+.ruta .how-n { background: rgb(var(--accent)); }
+
+/* ===== v7: páginas interiores ===== */
+.page-head { position: relative; overflow: hidden; background: linear-gradient(180deg, rgb(var(--surface)), rgb(var(--hero-2))); border-bottom: 1px solid rgb(var(--ink) / .06); }
+.page-head-art { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 46px; }
+.nav-link.active { color: rgb(var(--accent)); box-shadow: inset 0 -3px 0 rgb(var(--accent)); border-radius: 0; }
+
+/* ===== v8: tema oscuro (solo si se elige en Mi cuenta → Preferencias) ===== */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: 11 17 28;  --surface: 17 24 39;  --sunken: 30 41 59;
+  --ink: 241 245 249;  --body: 203 213 225;  --muted: 148 163 184;
+  --primary: 226 232 240;  --on-primary: 15 23 42;  --link: 147 197 253;
+  --accent: 37 99 235;  --on-accent: 255 255 255;
+  --hero: 17 24 39;  --hero-2: 23 37 64;  --hero-ink: 241 245 249;  --hero-body: 203 213 225;
+  --ok: 74 222 128;  --ok-bg: 20 60 40;  --warn: 252 211 77;  --warn-bg: 66 50 10;  --danger: 252 165 165;  --danger-bg: 76 25 30;
+  --marker: 161 98 7;
+  --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 8px 24px -14px rgb(0 0 0 / .7);
+  --shadow-lg: 0 2px 4px rgb(0 0 0 / .4), 0 24px 48px -22px rgb(0 0 0 / .8);
+}
+:root[data-theme="dark"] .tag.bg-accent { color: #fff; }
+:root[data-theme="dark"] .mapa svg, :root[data-theme="dark"] .hero-art, :root[data-theme="dark"] .page-head-art { filter: brightness(.82) saturate(.95); }
+
+/* ===== v8: asistente flotante ===== */
+.asistente { position: fixed; z-index: 66; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+@media (max-width: 767px) { body.con-barra .asistente { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); } }
+.asistente-fab { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; background: rgb(var(--accent)); color: #fff; box-shadow: 0 10px 28px -8px rgb(37 99 235 / .7); transition: transform .2s; }
+.asistente-fab:hover { transform: scale(1.06); }
+.asistente-panel { width: min(360px, calc(100vw - 32px)); max-height: min(70vh, 560px); overflow: auto; background: rgb(var(--surface)); border: 1px solid rgb(var(--ink) / .1); border-radius: 18px; box-shadow: var(--shadow-lg); outline: none; }
+.asistente-avatar { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; background: rgb(var(--accent)); color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; }
+.burbuja { max-width: 90%; padding: 10px 14px; border-radius: 14px 14px 14px 4px; background: rgb(var(--sunken)); color: rgb(var(--ink)); font-size: .92rem; }
+.chip:disabled { opacity: .55; cursor: not-allowed; }
+
+/* ===== v8: ventana del justificante e impresión ===== */
+.modal-fondo { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 16px; background: rgb(15 23 42 / .55); overflow: auto; }
+.modal { width: min(640px, 100%); max-height: calc(100vh - 32px); overflow: auto; background: rgb(var(--surface)); border-radius: 18px; box-shadow: var(--shadow-lg); padding: clamp(20px, 4vw, 36px); outline: none; }
+@media print {
+  body.imprimiendo-justificante > * { visibility: hidden; }
+  body.imprimiendo-justificante .justificante, body.imprimiendo-justificante .justificante * { visibility: visible; }
+  body.imprimiendo-justificante .modal-fondo { position: static; background: none; padding: 0; }
+  body.imprimiendo-justificante .justificante { position: absolute; left: 0; top: 0; width: 100%; max-height: none; box-shadow: none; border: 0; }
+  .no-imprimir { display: none !important; }
+}
+
+/* Selector de país de la matrícula */
+.seg { display: inline-flex; padding: 3px; gap: 3px; border-radius: 10px; background: rgb(var(--sunken)); }
+.seg button { min-height: 40px; padding: 0 14px; border-radius: 8px; font-weight: 700; font-size: .9rem; color: rgb(var(--muted)); }
+.seg button[aria-pressed="true"] { background: rgb(var(--surface)); color: rgb(var(--ink)); box-shadow: 0 1px 2px rgb(var(--ink) / .12); }
+.plate.sin-eu .eu { background: rgb(var(--muted)); }
+
+/* ===== v8: Mi cuenta ===== */
+.cuenta-nav { display: flex; gap: 4px; overflow-x: auto; padding: 6px; border-radius: 14px; background: rgb(var(--surface)); border: 1px solid rgb(var(--ink) / .08); box-shadow: var(--shadow); }
+.cuenta-nav button { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 14px; border-radius: 10px; font-weight: 700; color: rgb(var(--body)); white-space: nowrap; text-align: left; }
+.cuenta-nav button:hover { background: rgb(var(--sunken)); }
+.cuenta-nav button[aria-current="page"] { background: rgb(var(--accent) / .1); color: rgb(var(--accent)); }
+:root[data-theme="dark"] .cuenta-nav button[aria-current="page"] { color: rgb(var(--link)); }
+@media (min-width: 1024px) { .cuenta-nav { flex-direction: column; position: sticky; top: 130px; } }
+.tema-op { display: grid; gap: 10px; padding: 12px; border-radius: 12px; border: 1.5px solid rgb(var(--ink) / .12); text-align: left; transition: border-color .2s; }
+.tema-op[aria-checked="true"] { border-color: rgb(var(--accent)); box-shadow: 0 0 0 1px rgb(var(--accent)); }
+.muestra { display: grid; grid-template-columns: 1fr; gap: 5px; height: 72px; padding: 10px; border-radius: 8px; border: 1px solid rgb(var(--ink) / .1); }
+.muestra i { display: block; border-radius: 4px; }
+.muestra i:nth-child(1) { width: 40%; height: 8px; } .muestra i:nth-child(2) { width: 80%; height: 8px; } .muestra i:nth-child(3) { width: 30%; height: 16px; background: #2563EB !important; }
+.muestra-clara { background: #F8FAFC; } .muestra-clara i { background: #CBD5E1; }
+.muestra-oscura { background: #111827; } .muestra-oscura i { background: #475569; }
+.muestra-auto { background: linear-gradient(110deg, #F8FAFC 50%, #111827 50%); } .muestra-auto i { background: #94A3B8; }
+.interruptor { appearance: none; flex: none; width: 46px; height: 28px; border-radius: 999px; background: rgb(var(--ink) / .2); position: relative; cursor: pointer; transition: background-color .2s; }
+.interruptor::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / .3); transition: transform .2s; }
+.interruptor:checked { background: rgb(var(--accent)); }
+.interruptor:checked::after { transform: translateX(18px); }
+.interruptor:focus-visible { outline: 3px solid rgb(var(--link) / .5); outline-offset: 2px; }

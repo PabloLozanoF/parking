@@ -6,7 +6,8 @@ import { parseRango, desglosePrecio, normalizarMatricula, asyncHandler } from '.
 const router = Router();
 router.use(requireAuth);
 
-const MATRICULA_RE = /^[A-Z0-9]{4,10}$/;
+// Se aceptan matrículas extranjeras y antiguas: de 2 a 10 letras o números
+const MATRICULA_RE = /^[A-Z0-9]{2,10}$/;
 const TIPOS = ['normal', 'moto', 'electrico', 'discapacitados'];
 const CAMPOS = `id, codigo, matricula, inicio, fin, precio_base, gastos_gestion, precio_total, estado, creado_en,
   plaza:plazas(codigo, planta, tipo, parking:parkings(slug, nombre, zona))`;

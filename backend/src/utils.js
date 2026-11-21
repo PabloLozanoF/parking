@@ -36,6 +36,13 @@ export function normalizarMatricula(valor) {
   return String(valor || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
+// España (desde 2000): 4 números + 3 letras sin vocales, Ñ ni Q.
+// Extranjeras o españolas antiguas: de 2 a 10 letras o números.
+export function validarMatricula(matricula, pais = 'ES') {
+  if (pais === 'ES') return /^\d{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/.test(matricula);
+  return /^[A-Z0-9]{2,10}$/.test(matricula);
+}
+
 export function asyncHandler(fn) {
   return (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 }

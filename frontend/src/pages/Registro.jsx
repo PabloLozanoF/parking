@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useLang } from '../context/LangContext.jsx';
 import { Flecha } from '../components/Comunes.jsx';
-import { CajaCuenta } from './Login.jsx';
+import { BotonGoogle, CajaCuenta } from './Login.jsx';
 
 export default function Registro() {
   const { registro } = useAuth();
@@ -41,7 +41,8 @@ export default function Registro() {
 
   return (
     <CajaCuenta eyebrow={T('Nueva cuenta', 'Compte nou', 'New account')} titulo={T('Crear cuenta', 'Crear compte', 'Create account')}>
-      <form className="mt-6 grid gap-4" onSubmit={enviar}>
+      <BotonGoogle desde={location.state?.desde || '/'} />
+      <form className="mt-5 grid gap-4" onSubmit={enviar}>
         <label className="label">{T('Nombre', 'Nom', 'Name')}
           <input className="field" name="nombre" autoComplete="name" value={form.nombre} onChange={cambiar} required autoFocus />
         </label>

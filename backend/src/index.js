@@ -7,6 +7,7 @@ import perfilRouter from './routes/perfil.js';
 import adminRouter from './routes/admin.js';
 import parkingsRouter from './routes/parkings.js';
 import accesosRouter from './routes/accesos.js';
+import vehiculosRouter from './routes/vehiculos.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -18,6 +19,7 @@ app.get('/api/salud', (_req, res) => res.json({ ok: true }));
 app.use('/api/parkings', parkingsRouter);
 app.use('/api/plazas', plazasRouter);
 app.use('/api/accesos', accesosRouter);
+app.use('/api/vehiculos', vehiculosRouter);
 app.use('/api/reservas', reservasRouter);
 app.use('/api/perfil', perfilRouter);
 app.use('/api/admin', adminRouter);

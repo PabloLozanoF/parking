@@ -5,6 +5,7 @@ import { useLang } from '../context/LangContext.jsx';
 import { Cabecera, Cargando, Flecha, Matricula } from '../components/Comunes.jsx';
 import { nombreParking } from '../components/Reserva.jsx';
 import { euros, fecha, hora } from '../utils.js';
+import Justificante from '../components/Justificante.jsx';
 
 const ESTADOS = {
   confirmada: ['tag-ok', 'Confirmada', 'Confirmada', 'Confirmed'],
@@ -18,6 +19,7 @@ export default function MisReservas() {
   const [error, setError] = useState('');
   const [confirmando, setConfirmando] = useState(null); // id de la reserva que se va a cancelar
   const [cancelando, setCancelando] = useState(false);
+  const [justificante, setJustificante] = useState(null);
 
   const cargar = () => api.misReservas().then(setReservas).catch((e) => setError(e.message));
   useEffect(() => { cargar(); }, []);
@@ -56,6 +58,7 @@ export default function MisReservas() {
         </div>
         <div className="flex flex-wrap items-center gap-3 sm:flex-col sm:items-end">
           <span className="tnum font-mono text-2xl font-bold text-ink">{euros(r.precio_total, locale)}</span>
+          {r.estado !== 'cancelada' && <button type="button" className="btn btn-ghost !min-h-[44px] !px-4 text-sm" onClick={() => setJustificante(r)}>{T('Justificante', 'Justificant', 'Receipt')}</button>}
           {cancelable && confirmando !== r.id && (
             <button type="button" className="btn btn-ghost !min-h-[44px] !px-4 text-sm" onClick={() => setConfirmando(r.id)}>{T('Cancelar', 'Cancel·lar', 'Cancel')}</button>
           )}
@@ -100,6 +103,7 @@ export default function MisReservas() {
           </>
         )}
       </div>
+      {justificante && <Justificante reserva={justificante} onCerrar={() => setJustificante(null)} />}
     </section>
   );
 }

@@ -116,6 +116,6 @@ export const TEXTOS = {
   "n.signup": ["Crear cuenta", "Crear compte", "Create account"],
   "n.mine": ["Mis reservas", "Les meves reserves", "My bookings"],
   "n.admin": ["Administración", "Administració", "Admin"],
-  "n.profile": ["Mi perfil", "El meu perfil", "My profile"],
+  "n.profile": ["Mi cuenta", "El meu compte", "My account"],
   "n.logout": ["Salir", "Sortir", "Sign out"],
 };

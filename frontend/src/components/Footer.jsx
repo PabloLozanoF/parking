@@ -12,9 +12,9 @@ export default function Footer() {
     estacion: T('Parking Estación', PARKING_CA.estacion[0], 'Station Car Park'),
   };
   const columnas = [
-    [T('Reservar', 'Reservar', 'Book'), [['/#reservar', t('n.book')], ['/#tarifas', t('n.rates')], ['/#servicios', T('Tipos de plaza', 'Tipus de plaça', 'Space types')]]],
-    [T('Parkings', 'Pàrquings', 'Car parks'), Object.values(nombres).map((n) => ['/#parkings', n])],
-    [T('Ayuda', 'Ajuda', 'Help'), [['/#como-funciona', t('n.how')], ['/#barrera', t('n.gate')], ['/#faq', T('Preguntas frecuentes', 'Preguntes freqüents', 'FAQ')]]],
+    [T('Reservar', 'Reservar', 'Book'), [['/#reservar', t('n.book')], ['/parkings#tarifas', t('n.rates')], ['/parkings', T('Parkings y mapa', 'Pàrquings i mapa', 'Car parks & map')]]],
+    [T('Parkings', 'Pàrquings', 'Car parks'), Object.values(nombres).map((n) => ['/parkings', n])],
+    [T('Ayuda', 'Ajuda', 'Help'), [['/como-funciona', t('n.how')], ['/como-funciona#barrera', t('n.gate')], ['/ayuda', T('Preguntas frecuentes', 'Preguntes freqüents', 'FAQ')]]],
     [T('Tu cuenta', 'El teu compte', 'Your account'), [['/login', t('n.login')], ['/registro', t('n.signup')], ['/mis-reservas', t('n.mine')]]],
   ];
   return (
@@ -23,7 +23,7 @@ export default function Footer() {
         <div>
           <Link to="/" className="inline-flex items-center gap-2.5"><Logo claro /></Link>
           <p className="mt-4 max-w-xs text-sm">{t('ft.p')}</p>
-          <p className="mt-4 text-sm"><span className="font-bold text-white">{t('ft.where')}:</span> Tarragona, Catalunya · {t('ft.parks')}</p>
+          <p className="mt-4 text-sm"><span className="font-bold text-ink">{t('ft.where')}:</span> Tarragona, Catalunya · {t('ft.parks')}</p>
         </div>
         <nav className="grid grid-cols-2 gap-8 sm:grid-cols-4" aria-label={T('Pie de página', 'Peu de pàgina', 'Footer')}>
           {columnas.map(([titulo, enlaces]) => (
@@ -36,8 +36,13 @@ export default function Footer() {
           ))}
         </nav>
       </div>
-      <div className="border-t border-white/10">
-        <p className="wrap py-5 text-xs" lang={lang}>© {new Date().getFullYear()} Tarraco Parkings · {t('ft.copy')}</p>
+      <div className="border-t border-line/10">
+        <div className="wrap flex flex-wrap items-center justify-between gap-3 py-5 text-xs">
+          <p lang={lang}>© {new Date().getFullYear()} Tarraco Parkings · {t('ft.copy')}</p>
+          <button type="button" className="min-h-[36px] underline underline-offset-4 hover:text-ink" onClick={() => window.dispatchEvent(new Event('tp-cookies'))}>
+            {T('Configurar cookies', 'Configurar galetes', 'Cookie settings')}
+          </button>
+        </div>
       </div>
     </footer>
   );

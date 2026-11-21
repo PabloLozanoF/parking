@@ -56,3 +56,20 @@ export function precioEstimado(precioHora, minutos) {
   const gestion = Math.round(base * GESTION * 100) / 100;
   return { base, gestion, total: Math.round((base + gestion) * 100) / 100 };
 }
+
+// ---- Matrículas ----
+// España (desde 2000): 4 números + 3 letras sin vocales, Ñ ni Q → «1234 BCD».
+// Matrículas extranjeras o antiguas españolas (p. ej. «T 1234 AB») tienen otros
+// formatos, así que para ellas solo se pide entre 2 y 10 letras o números.
+export const PAISES = {
+  ES: ['España', 'Espanya', 'Spain'],
+  OTRO: ['Otro país o antigua', 'Un altre país o antiga', 'Other country or old'],
+};
+const RE_ES = /^\d{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/;
+export function validarMatricula(valor, pais = 'ES') {
+  const n = normMatricula(valor);
+  if (pais === 'ES') return RE_ES.test(n);
+  return /^[A-Z0-9]{2,10}$/.test(n);
+}
+// Adivina el país al cargar una matrícula guardada
+export const paisDe = (valor) => (RE_ES.test(normMatricula(valor)) ? 'ES' : 'OTRO');

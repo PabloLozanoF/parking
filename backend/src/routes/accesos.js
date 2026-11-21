@@ -42,7 +42,7 @@ router.get('/', asyncHandler(async (req, res) => {
 router.post('/', asyncHandler(async (req, res) => {
   const matricula = normalizarMatricula(req.body?.matricula);
   const tipo = req.body?.tipo === 'salida' ? 'salida' : 'entrada';
-  if (!/^[A-Z0-9]{4,10}$/.test(matricula)) return res.status(400).json({ error: 'Matrícula no válida' });
+  if (!/^[A-Z0-9]{2,10}$/.test(matricula)) return res.status(400).json({ error: 'Matrícula no válida' });
 
   const ahora = new Date();
   const base = { usuario_id: req.user.id, matricula, tipo };

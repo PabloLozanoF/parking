@@ -40,6 +40,12 @@ export function AuthProvider({ children }) {
     login: (email, password) => supabase.auth.signInWithPassword({ email, password }),
     registro: (email, password, nombre, telefono) =>
       supabase.auth.signUp({ email, password, options: { data: { nombre, telefono } } }),
+    // Entrar o crear cuenta con Google. Supabase lleva a la página de Google
+    // y vuelve a la web; guardamos a dónde había que volver.
+    loginGoogle: (desde = '/') => {
+      try { sessionStorage.setItem('tp-volver', desde); } catch { /* sin almacenamiento */ }
+      return supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+    },
     logout: () => supabase.auth.signOut(),
   };
 

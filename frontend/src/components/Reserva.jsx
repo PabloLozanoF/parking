@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useLang } from '../context/LangContext.jsx';
 import { Flecha, Matricula } from './Comunes.jsx';
-import { TIPOS, aFecha, diaIso, euros, fechaCorta, fmtMatricula, hhmm, normMatricula } from '../utils.js';
+import { PAISES, TIPOS, aFecha, diaIso, euros, fechaCorta, fmtMatricula, hhmm, normMatricula, paisDe, validarMatricula } from '../utils.js';
+import Justificante from './Justificante.jsx';
 
 // Nombres de los parkings en catalán e inglés (en la base de datos están en castellano)
 const PARKING_EN = {
@@ -61,6 +62,9 @@ export default function Reserva({ pedido, onReservada }) {
   const [park, setPark] = useState(borrador?.park || null);
   const [tipo, setTipo] = useState(borrador?.tipo || 'normal');
   const [plate, setPlate] = useState(borrador?.plate || '');
+  const [pais, setPais] = useState(borrador?.pais || 'ES');
+  const [vehiculos, setVehiculos] = useState([]);
+  const [verJustificante, setVerJustificante] = useState(false);
   const [terms, setTerms] = useState(Boolean(borrador));
   const [errores, setErrores] = useState({});
   const [paying, setPaying] = useState(false);
@@ -131,12 +135,24 @@ export default function Reserva({ pedido, onReservada }) {
     irA(2, true);
   };
 
-  const plateOk = () => { const n = normMatricula(plate); return n.length >= 4 && n.length <= 10; };
+  const plateOk = () => validarMatricula(plate, pais);
+
+  // Vehículos guardados en «Mi cuenta»: se ofrecen con un clic
+  useEffect(() => {
+    if (!session || step !== 2) return;
+    api.vehiculos().then((vs) => {
+      setVehiculos(vs);
+      const principal = vs.find((v) => v.principal);
+      if (principal) setPlate((p) => { if (p) return p; setPais(principal.pais || paisDe(principal.matricula)); return fmtMatricula(principal.matricula); });
+    }).catch(() => setVehiculos([]));
+  }, [session, step]);
 
   const pagar = async () => {
     if (paying) return;
     if (!plateOk()) {
-      setErrores({ plate: T('Escribe la matrícula completa, por ejemplo 1234 BCD.', 'Escriu la matrícula completa, per exemple 1234 BCD.', 'Enter the full plate, for example 1234 BCD.') });
+      setErrores({ plate: pais === 'ES'
+        ? T('Las matrículas españolas son 4 números y 3 letras sin vocales, por ejemplo 1234 BCD. Si es extranjera o antigua, elige «Otro país».', 'Les matrícules espanyoles són 4 números i 3 lletres sense vocals, per exemple 1234 BCD. Si és estrangera o antiga, tria «Un altre país».', 'Spanish plates are 4 numbers and 3 letters without vowels, e.g. 1234 BCD. If it is foreign or old, choose «Other country».')
+        : T('Escribe entre 2 y 10 letras o números.', 'Escriu entre 2 i 10 lletres o números.', 'Enter 2 to 10 letters or numbers.') });
       return plateRef.current?.focus();
     }
     if (!terms) return setErrores({ terms: T('Acepta las condiciones para poder reservar.', 'Accepta les condicions per poder reservar.', 'Accept the terms to book.') });
@@ -145,7 +161,7 @@ export default function Reserva({ pedido, onReservada }) {
     // Sin sesión: guardamos la reserva a medias y vamos a iniciar sesión
     if (!session) {
       try {
-        sessionStorage.setItem(BORRADOR, JSON.stringify({ day, date, tIn, dur, park, tipo, plate }));
+        sessionStorage.setItem(BORRADOR, JSON.stringify({ day, date, tIn, dur, park, tipo, plate, pais }));
       } catch { /* sin almacenamiento: tocará rellenarla otra vez */ }
       return navigate('/login', { state: { desde: '/#reservar' } });
     }
@@ -223,7 +239,10 @@ export default function Reserva({ pedido, onReservada }) {
             <legend className="legend">{t('b.when')}</legend>
             <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label={T('Día', 'Dia', 'Day')}>
               {[['0', t('b.today')], ['1', t('b.tomorrow')], ['other', t('b.other')]].map(([d, txt]) => (
-                <button key={d} type="button" className="chip" aria-pressed={day === d} onClick={() => elegirDia(d)}>{txt}</button>
+                <button key={d} type="button" className="chip chip-dia" aria-pressed={day === d} onClick={() => elegirDia(d)}>
+                  <span>{txt}</span>
+                  <span className="chip-sub">{d === 'other' ? (day === 'other' ? fechaCorta(date, locale).replace(/^\S+\s/, '') : T('elegir', 'triar', 'pick')) : fechaCorta(diaIso(Number(d)), locale).replace(/^\S+\s/, '')}</span>
+                </button>
               ))}
               {day === 'other' && (
                 <input type="date" className="field !w-auto" aria-label={T('Fecha', 'Data', 'Date')} min={diaIso(0)} value={otroDia}
@@ -275,14 +294,14 @@ export default function Reserva({ pedido, onReservada }) {
                       <span className="block text-lg font-bold leading-tight text-ink">{nombreParking(p, lang)}</span>
                       <span className="block text-sm text-muted">{zonaParking(p, lang)}</span>
                     </span>
-                    <span className="tnum row-span-2 text-right font-mono text-xl font-bold text-ink">
+                    <span className="tnum precio row-span-2 text-right text-xl text-ink">
                       {ok ? eur(p.precio_total) : '—'}
                       {ok && <span className="block font-sans text-xs font-semibold text-muted">{eur(p.precio_hora)}/h</span>}
                     </span>
                     <span className="col-start-2 flex flex-wrap gap-1.5">
                       {!ok ? <span className="tag tag-danger">{p.total === 0 ? T('Sin plazas de este tipo', 'Sense places d\'aquest tipus', 'No spaces of this type') : T('Completo en esa franja', 'Complet en aquesta franja', 'Full at that time')}</span>
-                        : pct < 0.2 ? <span className="tag tag-warn">{T(`Quedan ${p.libres} plazas`, `Queden ${p.libres} places`, `Only ${p.libres} spaces left`)}</span>
-                          : <span className="tag tag-ok">{T(`${p.libres} plazas libres`, `${p.libres} places lliures`, `${p.libres} spaces free`)}</span>}
+                        : pct < 0.2 ? <span className="tag tag-warn">{(p.libres === 1 ? T('Queda 1 plaza', 'Queda 1 plaça', 'Only 1 space left') : T(`Quedan ${p.libres} plazas`, `Queden ${p.libres} places`, `Only ${p.libres} spaces left`))}</span>
+                          : <span className="tag tag-ok">{(p.libres === 1 ? T('1 plaza libre', '1 plaça lliure', '1 space free') : T(`${p.libres} plazas libres`, `${p.libres} places lliures`, `${p.libres} spaces free`))}</span>}
                       {ok && p.precio_total === minimo && <span className="tag bg-accent text-on-accent">{T('Más barato', 'Més barat', 'Cheapest')}</span>}
                     </span>
                   </label>
@@ -305,7 +324,7 @@ export default function Reserva({ pedido, onReservada }) {
           <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t-[1.5px] border-line/10 pt-5">
             <div>
               <p className="text-sm font-semibold text-muted">{t('b.total')}</p>
-              <p className="tnum font-mono text-3xl font-bold text-ink">{elegido?.precio_total != null ? eur(elegido.precio_total) : '—'}</p>
+              <p className="tnum precio text-3xl text-ink">{elegido?.precio_total != null ? eur(elegido.precio_total) : '—'}</p>
               <p className="tnum text-xs text-muted">
                 {elegido?.precio_total != null
                   ? T(`${dur / 60} h × ${eur(elegido.precio_hora)} + ${eur(elegido.gastos_gestion)} de gestión`, `${dur / 60} h × ${eur(elegido.precio_hora)} + ${eur(elegido.gastos_gestion)} de gestió`, `${dur / 60} h × ${eur(elegido.precio_hora)} + ${eur(elegido.gastos_gestion)} booking fee`)
@@ -323,13 +342,33 @@ export default function Reserva({ pedido, onReservada }) {
         <div className="panel-in pt-5">
           <label className="legend block" htmlFor="bPlate">{t('b.plate')}</label>
           <p className="mt-1 text-sm text-muted">{t('b.plateHelp')}</p>
-          <div className="plate plate-input mt-3">
-            <span className="eu text-base" aria-hidden="true">E</span>
-            <input id="bPlate" ref={plateRef} type="text" autoComplete="off" autoCapitalize="characters" spellCheck="false" maxLength={10}
-              placeholder="0000 BBB" aria-describedby="bErrPlate" value={plate}
-              onChange={(e) => { setPlate(e.target.value); setErrores({}); }}
-              onBlur={() => { if (plateOk()) setPlate(fmtMatricula(plate)); }} />
+          {vehiculos.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label={T('Tus vehículos', 'Els teus vehicles', 'Your vehicles')}>
+              {vehiculos.map((v) => (
+                <button key={v.id} type="button" className="chip !min-h-[40px] text-sm" aria-pressed={normMatricula(plate) === v.matricula}
+                  onClick={() => { setPlate(fmtMatricula(v.matricula)); setPais(v.pais || paisDe(v.matricula)); setErrores({}); }}>
+                  <span className="font-mono">{fmtMatricula(v.matricula)}</span>{v.alias && <span className="ml-1.5 font-normal opacity-75">· {v.alias}</span>}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <div className="seg" role="group" aria-label={T('País de la matrícula', 'País de la matrícula', 'Plate country')}>
+              {Object.entries(PAISES).map(([k, n]) => (
+                <button key={k} type="button" aria-pressed={pais === k} onClick={() => { setPais(k); setErrores({}); }}>{T(...n)}</button>
+              ))}
+            </div>
           </div>
+          <div className={`plate plate-input mt-3 ${pais === 'ES' ? '' : 'sin-eu'}`}>
+            <span className="eu text-base" aria-hidden="true">{pais === 'ES' ? 'E' : '?'}</span>
+            <input id="bPlate" ref={plateRef} type="text" autoComplete="off" autoCapitalize="characters" spellCheck="false" maxLength={pais === 'ES' ? 8 : 12}
+              placeholder={pais === 'ES' ? '0000 BBB' : 'AB 123 CD'} aria-describedby="bErrPlate bAyudaPlate" value={plate}
+              onChange={(e) => { setPlate(e.target.value.toUpperCase()); setErrores({}); }}
+              onBlur={() => { if (plateOk() && pais === 'ES') setPlate(fmtMatricula(plate)); }} />
+          </div>
+          <p id="bAyudaPlate" className="mt-2 text-xs text-muted">{pais === 'ES'
+            ? T('4 números y 3 letras (sin vocales, Ñ ni Q).', '4 números i 3 lletres (sense vocals, Ñ ni Q).', '4 numbers and 3 letters (no vowels, Ñ or Q).')
+            : T('Matrícula extranjera o española antigua: de 2 a 10 letras y números.', 'Matrícula estrangera o espanyola antiga: de 2 a 10 lletres i números.', 'Foreign or old Spanish plate: 2 to 10 letters and numbers.')}</p>
           {errores.plate && <p id="bErrPlate" className="mt-2 text-sm font-semibold text-danger" role="alert">{errores.plate}</p>}
 
           <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-5 gap-y-2 rounded-2xl bg-sunken p-4 text-sm">
@@ -382,17 +421,22 @@ export default function Reserva({ pedido, onReservada }) {
               <div><dt className="text-muted">{T('Día', 'Dia', 'Day')}</dt><dd className="font-bold text-ink">{new Date(last.inicio).toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' })}</dd></div>
               <div><dt className="text-muted">{T('Horario', 'Horari', 'Time')}</dt><dd className="tnum font-bold text-ink">{new Date(last.inicio).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })} – {new Date(last.fin).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}</dd></div>
               <div><dt className="text-muted">{T('Matrícula', 'Matrícula', 'Plate')}</dt><dd><Matricula valor={last.matricula} className="mt-1 text-sm" /></dd></div>
-              <div><dt className="text-muted">Total</dt><dd className="tnum font-mono text-xl font-bold text-ink">{eur(last.precio_total)}</dd></div>
+              <div><dt className="text-muted">Total</dt><dd className="tnum precio text-xl text-ink">{eur(last.precio_total)}</dd></div>
             </dl>
           </div>
           <div className="mt-5 flex flex-wrap gap-3">
-            <button type="button" className="btn btn-primary" onClick={copiar}>{t('b.copy')}</button>
-            <a href="#barrera" className="btn btn-ghost">{t('b.try')}</a>
+            <button type="button" className="btn btn-accent" onClick={() => setVerJustificante(true)}>
+              <svg className="ico !h-5 !w-5" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2" /><rect x="7" y="14" width="10" height="7" rx="1" /></svg>
+              {T('Justificante', 'Justificant', 'Receipt')}
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={copiar}>{t('b.copy')}</button>
+            <Link to="/como-funciona#barrera" className="btn btn-ghost">{t('b.try')}</Link>
           </div>
           <button type="button" className="mt-4 min-h-[44px] font-semibold text-link underline underline-offset-4" onClick={nueva}>{t('b.new')}</button>
         </div>
       )}
       </div>
+      {verJustificante && last && <Justificante reserva={last} onCerrar={() => setVerJustificante(false)} />}
     </section>
   );
 }

@@ -22,7 +22,7 @@ Web para reservar plazas en los parkings de Tarragona (proyecto ASIX2). Disponib
 ### 1. Supabase
 1. Crea un proyecto en [supabase.com](https://supabase.com).
 2. Ve a **SQL Editor → New query**, pega el contenido de `supabase/schema.sql` y pulsa **Run**.
-3. Haz lo mismo con `supabase/02_rediseno.sql` (añade los parkings, el código de reserva y la tabla `accesos`). Se puede ejecutar más de una vez.
+3. Haz lo mismo con `supabase/02_rediseno.sql` (añade los parkings, el código de reserva y la tabla `accesos`) y después con `supabase/03_cuenta.sql` (vehículos guardados, preferencias y nombre al entrar con Google). Se pueden ejecutar más de una vez.
 4. En **Project Settings → API** copia la *Project URL*, la clave *anon public* y la clave *service_role*.
 5. (Opcional, para pruebas) En **Authentication → Providers → Email** puedes desactivar *Confirm email*.
 
@@ -71,3 +71,13 @@ where id = (select id from auth.users where email = 'TU_EMAIL');
 | PATCH | `/api/admin/plazas/:id` | admin |
 
 > ⚠️ La clave `service_role` va **solo** en `backend/.env`. Los archivos `.env` no se suben a GitHub.
+
+## Novedades del diseño 8
+
+- **Páginas:** Inicio (reserva), Parkings y tarifas, Cómo funciona, Ayuda, Mi cuenta.
+- **Entrar con Google:** activa Google en Supabase → *Authentication → Providers → Google* (Client ID y Secret de Google Cloud) y añade `http://localhost:5173` en *Authentication → URL Configuration*.
+- **Matrículas:** España (formato actual 1234 BCD) u «Otro país o antigua» (2 a 10 letras y números).
+- **Justificante** de cada reserva, imprimible o en PDF desde el navegador.
+- **Mi cuenta:** resumen y «reservar otra vez», vehículos guardados, justificantes, datos, preferencias (tema claro/oscuro, idioma, avisos), métodos de pago (pendiente de pasarela) y seguridad.
+- **Cookies:** «Solo necesarias» o «Aceptar todas»; se recuerda la elección.
+- **Asistente:** botón abajo a la derecha, todavía sin conectar. Las instrucciones para Gemini están en `frontend/src/components/Asistente.jsx`; la clave de Google AI Studio irá en `backend/.env`, nunca en el frontend.

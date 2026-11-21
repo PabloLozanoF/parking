@@ -20,7 +20,7 @@ async function request(path, { method = 'GET', body } = {}) {
     throw new Error('No se puede conectar con el servidor. ¿Está arrancado el backend?');
   }
 
-  const json = await res.json().catch(() => ({}));
+  const json = res.status === 204 ? null : await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.error || `Error ${res.status}`);
   return json;
 }
@@ -38,6 +38,10 @@ export const api = {
   barrera: (matricula, tipo) => request('/accesos', { method: 'POST', body: { matricula, tipo } }),
   misAccesos: () => request('/accesos'),
   perfil: () => request('/perfil'),
+  vehiculos: () => request('/vehiculos'),
+  crearVehiculo: (datos) => request('/vehiculos', { method: 'POST', body: datos }),
+  borrarVehiculo: (id) => request(`/vehiculos/${id}`, { method: 'DELETE' }),
+  vehiculoPrincipal: (id) => request(`/vehiculos/${id}/principal`, { method: 'PATCH' }),
   actualizarPerfil: (datos) => request('/perfil', { method: 'PATCH', body: datos }),
 
   // Administración

@@ -4,7 +4,7 @@ import { fmtMatricula } from '../utils.js';
 export function Matricula({ valor, className = '' }) {
   return (
     <span className={`plate ${className}`}>
-      <span className="eu" aria-hidden="true">E</span>
+      {/^\d{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/.test(String(valor || '').toUpperCase().replace(/[^A-Z0-9]/g, '')) && <span className="eu" aria-hidden="true">E</span>}
       <span className="num">{fmtMatricula(valor) || '— — —'}</span>
     </span>
   );
@@ -24,7 +24,7 @@ export function Logo({ claro = false }) {
   return (
     <>
       <span className="sign" aria-hidden="true">P</span>
-      <span className={`display text-[1.35rem] leading-[1.05] ${claro ? 'text-white' : 'text-ink'}`}>
+      <span className={`display text-[1.35rem] leading-[1.05] text-ink`}>
         Tarraco<span className="block text-[.78em] font-bold tracking-[.14em] text-accent">PARKINGS</span>
       </span>
     </>
