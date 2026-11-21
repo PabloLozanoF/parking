@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -474,7 +475,7 @@ export default function Reserva({ pedido, onReservada }) {
       )}
       </div>
       {verJustificante && last && <Justificante reserva={last} onCerrar={() => setVerJustificante(false)} />}
-      {fasePago && (
+      {fasePago && createPortal(
         <div className="pasarela" role="alertdialog" aria-modal="true" aria-live="assertive" aria-label={T('Pago', 'Pagament', 'Payment')}>
           <div className="pasarela-caja panel-in">
             <p className="flex items-center justify-center gap-2 text-sm font-semibold text-muted">
@@ -493,7 +494,8 @@ export default function Reserva({ pedido, onReservada }) {
             )}
             <p className="mt-5 text-xs text-muted">{T('Modo de prueba: no se realiza ningún cargo.', 'Mode de prova: no es fa cap càrrec.', 'Test mode: no charge is made.')}</p>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </section>
   );
