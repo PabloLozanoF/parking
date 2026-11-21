@@ -6,10 +6,12 @@ import { GESTION } from '../utils.js';
  * Asistente del parking con Google Gemini (clave de Google AI Studio).
  * Configuración en backend/.env:
  *   GEMINI_API_KEY=tu-clave-de-google-ai-studio   (obligatoria)
- *   GEMINI_MODEL=gemini-flash-latest              (opcional)
+ *   GEMINI_MODEL=gemini-flash-latest              (opcional; si falla se prueban otros)
  * La clave se queda en el servidor: el navegador nunca la ve.
  */
-const MODELO = () => process.env.GEMINI_MODEL || 'gemini-flash-latest';
+// Se prueban en orden: si un modelo no existe para tu clave, se pasa al siguiente
+const MODELOS = () => [...new Set([process.env.GEMINI_MODEL, 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.0-flash'].filter(Boolean))];
+let modeloBueno = null; // el primero que ha funcionado
 const URL_API = (m) => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
 const MAX_MENSAJES = 12;
 const MAX_CARACTERES = 800;
@@ -85,29 +87,38 @@ router.post('/', limitar, async (req, res, next) => {
     while (mensajes.length && mensajes[0].role !== 'user') mensajes.shift();
     if (!mensajes.length || mensajes.at(-1).role !== 'user') return res.status(400).json({ error: 'Escribe un mensaje' });
 
+    const cuerpo = JSON.stringify({
+      systemInstruction: { parts: [{ text: INSTRUCCIONES(await datosParkings()) }] },
+      contents: mensajes,
+      generationConfig: { maxOutputTokens: 500 },
+    });
+
     let r;
-    try {
-      r = await fetch(URL_API(MODELO()), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': clave },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: INSTRUCCIONES(await datosParkings()) }] },
-          contents: mensajes,
-          generationConfig: { maxOutputTokens: 500 },
-        }),
-        signal: AbortSignal.timeout(25000),
-      });
-    } catch {
-      return res.status(504).json({ error: 'El asistente tarda demasiado. Inténtalo de nuevo.' });
+    let json = {};
+    for (const modelo of modeloBueno ? [modeloBueno] : MODELOS()) {
+      try {
+        r = await fetch(URL_API(modelo), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': clave },
+          body: cuerpo,
+          signal: AbortSignal.timeout(25000),
+        });
+      } catch {
+        return res.status(504).json({ error: 'El asistente tarda demasiado. Inténtalo de nuevo.' });
+      }
+      json = await r.json().catch(() => ({}));
+      if (r.ok) { modeloBueno = modelo; break; }
+      console.error(`Error de Gemini (${modelo}):`, r.status, json?.error?.message);
+      if (r.status !== 404) break; // solo se prueba otro modelo si este no existe
     }
 
-    const json = await r.json().catch(() => ({}));
     if (!r.ok) {
-      console.error('Error de Gemini:', r.status, json?.error?.message);
       const msg = r.status === 429 ? 'El asistente está muy solicitado. Prueba en un momento.'
         : [400, 401, 403, 404].includes(r.status) ? 'El asistente no está bien configurado (revisa GEMINI_API_KEY y GEMINI_MODEL).'
           : 'El asistente no está disponible ahora mismo.';
-      return res.status(502).json({ error: msg });
+      // En desarrollo se añade el motivo que da Google (nunca incluye la clave)
+      const detalle = process.env.NODE_ENV === 'production' ? undefined : `${r.status}: ${json?.error?.message || ''}`.slice(0, 300);
+      return res.status(502).json({ error: msg, detalle });
     }
     const texto = (json.candidates?.[0]?.content?.parts || []).filter((p) => p.text && !p.thought).map((p) => p.text).join('').trim();
     res.json({ texto: texto || 'Perdona, no he podido responder. ¿Puedes reformular la pregunta?' });
