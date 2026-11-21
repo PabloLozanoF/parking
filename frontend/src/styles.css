@@ -444,3 +444,6 @@ table.data tbody tr:hover { background: rgb(var(--ink) / .03); }
 .interruptor:checked { background: rgb(var(--accent)); }
 .interruptor:checked::after { transform: translateX(18px); }
 .interruptor:focus-visible { outline: 3px solid rgb(var(--link) / .5); outline-offset: 2px; }
+
+/* Acceso al panel, solo visible para administradores */
+.top-admin { color: rgb(var(--accent)); font-weight: 700; }
