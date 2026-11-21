@@ -82,3 +82,25 @@ where id = (select id from auth.users where email = 'TU_EMAIL');
 - **Mi cuenta:** resumen y «reservar otra vez», vehículos guardados, justificantes, datos, preferencias (tema claro/oscuro, idioma, avisos), métodos de pago (pendiente de pasarela) y seguridad.
 - **Cookies:** «Solo necesarias» o «Aceptar todas»; se recuerda la elección.
 - **Asistente:** botón abajo a la derecha. Usa Gemini a través del backend (`/api/asistente`), con las tarifas reales de la base de datos. Para activarlo, pon `GEMINI_API_KEY=...` (Google AI Studio → Get API key) en `backend/.env` y reinicia el backend. La clave nunca va en el frontend.
+
+## Publicar en Vercel
+
+El proyecto ya está preparado: `vercel.json` compila el frontend (`frontend/dist`) y `api/index.js` publica la API de Express como función de Vercel en `/api/...`. Todo queda en el mismo dominio.
+
+1. Sube el proyecto a tu repositorio de GitHub (los `.env` no se suben).
+2. En [vercel.com](https://vercel.com) → **Add New → Project** → importa el repositorio. No cambies nada de *Build settings*: lo lee de `vercel.json`.
+3. En **Environment Variables** añade (los mismos valores que en tus `.env`):
+
+   | Variable | Valor |
+   |---|---|
+   | `SUPABASE_URL` | URL del proyecto de Supabase |
+   | `SUPABASE_SERVICE_ROLE_KEY` | clave **service_role** (secreta) |
+   | `GEMINI_API_KEY` | clave de Google AI Studio (chatbot) |
+   | `VITE_SUPABASE_URL` | la misma URL de Supabase |
+   | `VITE_SUPABASE_ANON_KEY` | clave **anon public** |
+   | `NODE_ENV` | `production` |
+
+4. Pulsa **Deploy**.
+5. En Supabase → **Authentication → URL Configuration**, pon la dirección de Vercel (`https://tu-proyecto.vercel.app`) en *Site URL* y en *Redirect URLs*, para que el email de confirmación y el login con Google vuelvan a la web publicada.
+
+En local todo sigue igual: `npm run backend` y `npm run frontend`.
