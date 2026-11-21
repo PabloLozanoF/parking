@@ -1,0 +1,31 @@
+{
+  // Terminal → Run Task… → «Arrancar Tarraco Parkings» abre el backend y el frontend a la vez
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Backend (puerto 4000)",
+      "type": "npm",
+      "script": "dev",
+      "path": "backend",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "group": "tarraco", "panel": "dedicated" }
+    },
+    {
+      "label": "Frontend (http://localhost:5173)",
+      "type": "npm",
+      "script": "dev",
+      "path": "frontend",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "group": "tarraco", "panel": "dedicated" }
+    },
+    {
+      "label": "Arrancar Tarraco Parkings",
+      "dependsOn": ["Backend (puerto 4000)", "Frontend (http://localhost:5173)"],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "group": { "kind": "build", "isDefault": true }
+    }
+  ]
+}
